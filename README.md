@@ -4,6 +4,16 @@ denkmap
 DenkMap is a location-based mobile app dedicated to monuments.
 It's name is a play of words of the German term for monument (_Denkmal_) and map.
 
+## Installation
+
+Run the install script:
+
+```bash
+./install.sh
+```
+
+Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) installed on your development machine.
+
 ## Credits
 
 ### Logo
