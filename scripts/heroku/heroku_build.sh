@@ -7,3 +7,5 @@ fi
 mkdir $BUILD_DIR
 echo "Development build... copying files from $SOURCE_DIR to $BUILD_DIR"
 cp -r $SOURCE_DIR/* $BUILD_DIR
+cp -r $SOURCE_DIR/.sencha $BUILD_DIR
+rm $BUILD_DIR/package.json
