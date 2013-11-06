@@ -1,0 +1,57 @@
+/*
+Syntax error: File to import not found or unreadable: recipes/shape/polygon/hexagon.
+              Load path: /home/odi/dev/denkmap/touch/resources/themes/vendor/compass-recipes/stylesheets/recipes/shape
+        on line 6 of _polygon.scss
+
+1: /**
+2:  * Shape/Polygon
+3:  *
+4:  * @author Maxime Thirouin maxime.thirouin@gmail.com @MoOx
+5:  */
+6: @import "recipes/shape/polygon/hexagon";
+7: @import "recipes/shape/polygon/octagon";
+8: @import "recipes/shape/polygon/parallelogram";
+9: @import "recipes/shape/polygon/pentagon";
+10: @import "recipes/shape/polygon/rectangle";
+11: @import "recipes/shape/polygon/rhombus";
+
+Backtrace:
+_polygon.scss:6
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:67:in `rescue in import'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:45:in `import'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:28:in `imported_file'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:37:in `css_import?'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:217:in `visit_import'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `map'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:109:in `block in visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:121:in `with_environment'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:108:in `visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `block in visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:128:in `visit_root'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:7:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/root_node.rb:20:in `render'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/engine.rb:315:in `_render'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/engine.rb:262:in `render'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:362:in `update_stylesheet'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:203:in `block in update_stylesheets'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:201:in `each'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:201:in `update_stylesheets'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin.rb:81:in `update_stylesheets'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:432:in `watch_or_update'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:315:in `process_result'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:41:in `parse'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:21:in `parse!'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/bin/scss:9:in `<top (required)>'
+/usr/local/bin/scss:23:in `load'
+/usr/local/bin/scss:23:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Syntax error: File to import not found or unreadable: recipes/shape/polygon/hexagon.\A               Load path: /home/odi/dev/denkmap/touch/resources/themes/vendor/compass-recipes/stylesheets/recipes/shape\A         on line 6 of _polygon.scss\A \A 1: /**\A 2:  * Shape/Polygon\A 3:  *\A 4:  * @author Maxime Thirouin maxime.thirouin@gmail.com @MoOx\A 5:  */\A 6: @import \"recipes/shape/polygon/hexagon\";\A 7: @import \"recipes/shape/polygon/octagon\";\A 8: @import \"recipes/shape/polygon/parallelogram\";\A 9: @import \"recipes/shape/polygon/pentagon\";\A 10: @import \"recipes/shape/polygon/rectangle\";\A 11: @import \"recipes/shape/polygon/rhombus\";"; }
