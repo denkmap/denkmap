@@ -8,7 +8,7 @@ It's name is a play of words of the German term for monument (_Denkmal_) and map
 
 Denkmap is built using [Travis CI](https://travis-ci.org):
 
-[![Build Status](https://api.travis-ci.org/denkmap/denkmap.png)](http://travis-ci.org/denkmap/denkmap)
+[![Build Status](https://api.travis-ci.org/denkmap/denkmap.png?branch=develop)](http://travis-ci.org/denkmap/denkmap)
 
 The app is deployed on [Heroku](https://www.heroku.com/): http://denkmap.herokuapp.com
 
@@ -17,7 +17,7 @@ The app is deployed on [Heroku](https://www.heroku.com/): http://denkmap.herokua
 Run the install script:
 
 ```bash
-./install.sh
+./scripts/install.sh
 ```
 
 Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) installed on your development machine.
