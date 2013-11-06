@@ -1,0 +1,20 @@
+language: php
+
+php:
+  - 5.4
+
+env:
+  global:
+    - CI_HOME=`pwd`/denkmap/denkmap
+    - DEPLOY="true"
+    - BUILD_DIR=`pwd`/build_heroku
+    - secure: "jNOwRKR896lxk3yo2v9WQ9T/CHeLPWPiJaeRtn8VKABwLdU+Ul8DS4hV8TPO\nNFs1RZs7EYh2YmsW/7Nd6Z3gmRBZxhktnCWxzKk2d9r/QX+sbSzq2yzNvzN+\nyoUPGVLpogF0CrbxpfjHhpZazFtPKjUIKMBCjAA6LM3KCqejHmg="
+
+before_script:
+  - wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh 
+  - export PATH="$PATH:$CI_HOME:/usr/local/heroku/bin"
+
+script: $CI_HOME/scripts/build.sh
+
+after_script:
+  - bash $CI_HOME/scripts/heroku/heroku.sh
