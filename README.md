@@ -4,6 +4,14 @@ denkmap
 DenkMap is a location-based mobile app dedicated to monuments.
 It's name is a play of words of the German term for monument (_Denkmal_) and map.
 
+## Build
+
+Denkmap is built using [Travis CI](https://travis-ci.org):
+
+[![Build Status](https://api.travis-ci.org/denkmap/denkmap.png)](http://travis-ci.org/denkmap/denkmap)
+
+The app is deployed on [Heroku](https://www.heroku.com/): http://denkmap.herokuapp.com
+
 ## Installation
 
 Run the install script:
