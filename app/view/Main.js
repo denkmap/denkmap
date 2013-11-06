@@ -7,7 +7,8 @@ Ext.define('Denkmap.view.Main', {
     id: 'mainTabPanel',
     requires: [
         'Ext.TitleBar',
-        'Denkmap.view.about.Container'
+        'Denkmap.view.about.Container',
+        'Ext.ux.LeafletMap'
     ],
 
     config: {
@@ -22,21 +23,29 @@ Ext.define('Denkmap.view.Main', {
             {
                 title: 'Map',
                 iconCls: 'map',
-
-                styleHtmlContent: true,
-                scrollable: true,
-
                 items: {
                     docked: 'top',
                     xtype: 'titlebar',
-                    title: 'Welcome to Sencha Touch 2'
+                    title: 'Denkmap'
                 },
 
-                html: [
-                    "You've just generated a new Sencha Touch 2 project. What you're looking at right now is the ",
-                    "contents of <a target='_blank' href=\"app/view/Main.js\">app/view/Main.js</a> - edit that file ",
-                    "and refresh to change what's rendered here."
-                ].join("")
+                // Ext.ux.LeafletMap Component
+                xtype: 'leafletmap',
+                id: 'leafletmap',
+                useCurrentLocation: true,
+                autoMapCenter: false,
+                enableOwnPositionMarker: true,
+                mapOptions: {
+                    zoom: 15
+                },
+
+                //tileLayerUrl: 'http://{s}.tile.cloudmade.com/{apikey}/{styleId}@2x/256/{z}/{x}/{y}.png',
+                tileLayerOptions: {
+                    //apikey: '14841398f0e34016bf1a754840465247',
+                    styleId: 997,
+                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a>',
+                    detectRetina: true
+                }
             },
             {
                 xtype: 'aboutcontainer'

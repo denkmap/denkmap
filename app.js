@@ -10,6 +10,10 @@
     will need to resolve manually.
 */
 
+Ext.Loader.setPath({
+    'Ext.ux': 'ux'
+});
+
 Ext.application({
     name: 'Denkmap',
 
