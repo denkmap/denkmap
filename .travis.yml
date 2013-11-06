@@ -13,7 +13,7 @@ env:
 before_script:
   - npm install -g grunt-cli
   - npm install
-  - wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh >/dev/null 2>&1
+  - wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh 
   - export PATH="$PATH:$CI_HOME:/usr/local/heroku/bin"
 
 script: $CI_HOME/scripts/build.sh
