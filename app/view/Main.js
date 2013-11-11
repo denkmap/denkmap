@@ -7,7 +7,7 @@ Ext.define('Denkmap.view.Main', {
     id: 'mainTabPanel',
     requires: [
         'Denkmap.view.about.Container',
-        'Denkmap.view.map.NavigationView',
+        'Denkmap.view.map.NavigationView'
     ],
 
     config: {

@@ -70,6 +70,7 @@ Ext.define('Denkmap.controller.Map', {
             {
                 onEachFeature: popUp,
                 pointToLayer: function (feature, latlng) {
+                    /*jshint maxcomplexity:100*/
                     var style = {
                         radius: 11,
                         fillColor: "#ff7800",
@@ -133,8 +134,9 @@ Ext.define('Denkmap.controller.Map', {
      * @param {String} monument
      */
     _normalizeMonument: function (monument) {
+        /*jshint maxcomplexity:100*/
         var re,
-            monumentType
+            monumentType,
             index,
             types;
 
@@ -146,8 +148,7 @@ Ext.define('Denkmap.controller.Map', {
             return "";
         }
 
-        var index;
-        var types = [monument.baugruppe, monument.objtext];
+        types = [monument.baugruppe, monument.objtext];
         for (index = 0; index < types.length; ++index) {
             monumentType = types[index];
             if (!monumentType) {
