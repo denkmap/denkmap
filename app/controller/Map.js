@@ -51,7 +51,7 @@ Ext.define('Denkmap.controller.Map', {
             layer.bindPopup(
                 "<ul>" +
                 "<li><b>Baugruppe:</b>&nbsp;" + feature.properties.baugruppe + "</li>" +
-                "<li><b>Baukahr:</b>&nbsp;" + feature.properties.baujahr + "</li>" +
+                "<li><b>Baujahr:</b>&nbsp;" + feature.properties.baujahr + "</li>" +
                 "</ul>"
             );
         }
