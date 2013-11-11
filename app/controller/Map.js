@@ -92,7 +92,7 @@ Ext.define('Denkmap.controller.Map', {
         var me = this;
         console.log("Map create");
         me._centerMapToCurrentPosition(geo);
-        me._loadGeoJsonLayer('https://dl.dropboxusercontent.com/u/138759/denkmal.geojson');
+        me._loadGeoJsonLayer('./resources/remote/denkmal.geojson');
     },
 
     /**
