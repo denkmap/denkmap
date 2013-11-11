@@ -16,14 +16,10 @@ Ext.define('Denkmap.view.map.NavigationView', {
         url: 'map',
         id: 'mapNavigationView',
         items: [{
-            docked: 'top',
-            xtype: 'titlebar',
-            title: 'DenkMap'
-        },
-        {
             // Ext.ux.LeafletMap Component
             id: 'leafletmap',
             xtype: 'leafletmap',
+            title: 'DenkMap',
             useCurrentLocation: true,
             enableOwnPositionMarker: true,
             autoMapCenter: false,
