@@ -38,13 +38,14 @@ Ext.define('Denkmap.view.about.Container', {
                                 '<dd>Wiki: <a href="http://make.opendata.ch/wiki/project:denkmalfuehrer">make.opendata.ch</a></dd>' +
                                 '<dd>Report a bug: <a href="https://github.com/denkmap/denkmap/issues">GitHub</a></dd>' +
                                 '<dt>Team</dt>' +
-                                '<dd>Stefan Oderbolz</dd>' +
+                                '<dd>Pirmin Kalberer</dd>' +
                                 '<dd>Thomas Husmann</dd>' +
+                                '<dd>Stefan Oderbolz</dd>' +
                                 '<dd>Adi Herzog</dd>' +
                                 '<dd>Priska Haller</dd>' +
-                                '<dd>Andi</dd>' +
+                                '<dd>Andi Vonlaufen</dd>' +
                                 '<dd>Beat Estermann</dd>' +
-                                '<dd>Pirmin Kalberer</dd>' +
+                                '<dd>Oliver Berchtold</dd>' +
                             '</dl>' +
                         '</div>'
             }
