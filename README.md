@@ -4,6 +4,30 @@ denkmap
 DenkMap is a location-based mobile app dedicated to monuments.
 It's name is a play of words of the German term for monument (_Denkmal_) and map.
 
+## Build
+
+Denkmap is built using [Travis CI](https://travis-ci.org):
+
+[![Build Status](https://api.travis-ci.org/denkmap/denkmap.png?branch=develop)](http://travis-ci.org/denkmap/denkmap)
+
+The app is deployed on [Heroku](https://www.heroku.com/): http://denkmap.herokuapp.com
+
+## Installation
+
+Run the install script:
+
+```bash
+./scripts/install.sh
+```
+
+Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) installed on your development machine.
+
+### Convert WFS to GeoJSON
+
+1. Download WFS Service as GML: http://maps.zh.ch/wfs/DenkmalschutzWFS?service=wfs&version=1.1.0&request=GetFeature&typeName=denkmalschutzobjekte
+2. Install ogr2ogr (apt-get install gdal-bin)
+3. Convert the GML to a GeoJSON: `ogr2ogr -f geoJSON -s_srs EPSG:21781 -t_srs EPSG:4326 denkmal.geojson DenkmalschutzWFS.gml`
+
 ## Credits
 
 ### Logo

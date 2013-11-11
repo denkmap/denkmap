@@ -1,0 +1,55 @@
+/*
+Syntax error: File to import not found or unreadable: sencha-touch/default.
+              Load path: /home/odi/dev/denkmap/resources/sass
+        on line 4 of app.scss
+
+1: // The following two lines import the default Sencha Touch theme. If you are building
+2: // a new theme, remove them and the add your own CSS on top of the base CSS (which
+3: // is already included in your app.json file).
+4: @import 'sencha-touch/default';
+5: @import 'sencha-touch/default/all';
+6: 
+7: // Custom code goes here..
+8: 
+9: // Examples of using the icon mixin:
+
+Backtrace:
+app.scss:4
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:67:in `rescue in import'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:45:in `import'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:28:in `imported_file'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/import_node.rb:37:in `css_import?'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:217:in `visit_import'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `map'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:109:in `block in visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:121:in `with_environment'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:108:in `visit_children'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `block in visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:128:in `visit_root'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:7:in `visit'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/root_node.rb:20:in `render'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/engine.rb:315:in `_render'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/engine.rb:262:in `render'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:362:in `update_stylesheet'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:203:in `block in update_stylesheets'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:201:in `each'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin/compiler.rb:201:in `update_stylesheets'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/plugin.rb:81:in `update_stylesheets'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:432:in `watch_or_update'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:315:in `process_result'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:41:in `parse'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/lib/sass/exec.rb:21:in `parse!'
+/var/lib/gems/1.9.1/gems/sass-3.2.9/bin/scss:9:in `<top (required)>'
+/usr/local/bin/scss:23:in `load'
+/usr/local/bin/scss:23:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Syntax error: File to import not found or unreadable: sencha-touch/default.\A               Load path: /home/odi/dev/denkmap/resources/sass\A         on line 4 of app.scss\A \A 1: // The following two lines import the default Sencha Touch theme. If you are building\A 2: // a new theme, remove them and the add your own CSS on top of the base CSS (which\A 3: // is already included in your app.json file).\A 4: @import 'sencha-touch/default';\A 5: @import 'sencha-touch/default/all';\A 6: \A 7: // Custom code goes here..\A 8: \A 9: // Examples of using the icon mixin:"; }
