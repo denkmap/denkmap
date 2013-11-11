@@ -6,10 +6,8 @@ Ext.define('Denkmap.view.Main', {
     xtype: 'main',
     id: 'mainTabPanel',
     requires: [
-        'Ext.TitleBar',
         'Denkmap.view.about.Container',
-        'Denkmap.view.map.NavigationView',
-        'Ext.ux.LeafletMap'
+        'Denkmap.view.map.NavigationView'
     ],
 
     config: {
