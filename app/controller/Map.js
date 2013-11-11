@@ -92,7 +92,7 @@ Ext.define('Denkmap.controller.Map', {
         var me = this;
         console.log("Map create");
         me._centerMapToCurrentPosition(geo);
-        me._loadGeoJsonLayer('https://dl.dropboxusercontent.com/u/138759/denkmal.geojson');
+        me._loadGeoJsonLayer('./resources/remote/denkmal.geojson');
     },
 
     /**
@@ -106,14 +106,16 @@ Ext.define('Denkmap.controller.Map', {
      * @private
      */
     _centerMapToCurrentPosition: function(geo) {
-        this.getMapCmp().setMapCenter(this.getCurrentLocationLatLng(geo));
+        console.log('centerMapToCurrentPosition');
+        this.getMapCmp().setMapCenter(this.getCurrentLocationLatLng());
     },
 
     /**
      * Get the current gps coordiantes.
      * @returns {L.latLng}
      */
-    getCurrentLocationLatLng: function(geo) {
+    getCurrentLocationLatLng: function() {
+        var geo = this.getMapCmp().getGeo();
         return L.latLng(geo.getLatitude(), geo.getLongitude());
     }
 });
