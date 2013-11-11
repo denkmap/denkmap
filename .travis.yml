@@ -16,5 +16,5 @@ before_script:
 
 script: $CI_HOME/scripts/build.sh
 
-after_script:
+after_success:
   - bash $CI_HOME/scripts/heroku/heroku.sh
