@@ -20,5 +20,5 @@ wget -P $DIR/../resources/remote https://raw.github.com/calvinmetcalf/leaflet-aj
 
 
 # Install dependencies
-sudo npm install -g grunt-cli
+npm install -g grunt-cli
 npm install
