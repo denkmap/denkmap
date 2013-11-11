@@ -14,3 +14,41 @@
 
 // Examples of using the icon mixin:
 @include icon('browser');
+
+$default-font-size: 0.9em;
+$dark-grey: #4B4B4B;
+
+.about-content {
+  $logo-size: 500px;
+
+  .logo {
+    text-align: center;
+
+    img {
+      width: $logo-size/2;
+      height: $logo-size/2;
+    }
+  }
+  .introduction {
+    font-size: $default-font-size;
+    margin: 1em 0;
+
+    p {
+      margin-bottom: 0.6em;
+    }
+  }
+}
+
+.denkmap-definitionlist {
+  dt {
+    font-size: 0.6em;
+    margin-top: 0.8em;
+    margin-bottom: 0.1em;
+    color: $dark-grey;
+    text-transform: uppercase;
+  }
+  dd {
+    font-size: $default-font-size;
+    margin: 0.2em 0;
+  }
+}
