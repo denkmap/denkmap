@@ -18,11 +18,17 @@ Ext.application({
     name: 'Denkmap',
 
     requires: [
-        'Ext.MessageBox'
+        'Ext.MessageBox',
+        'Denkmap.util.Geolocation',
+        'Denkmap.util.Config'
     ],
 
     views: [
         'Main'
+    ],
+
+    controllers: [
+        'Map'
     ],
 
     icon: {
@@ -44,11 +50,25 @@ Ext.application({
     },
 
     launch: function() {
-        // Destroy the #appLoadingIndicator element
-        Ext.fly('appLoadingIndicator').destroy();
+        var mainPanel, me = this;
 
-        // Initialize the main view
-        Ext.Viewport.add(Ext.create('Denkmap.view.Main'));
+        // create main panel
+        // this has to be done in launch method so routes can work properly
+        mainPanel = Ext.create('Denkmap.view.Main');
+        Ext.Viewport.add(mainPanel);
+        mainPanel.hide();
+
+        Denkmap.geolocation = Ext.create('Denkmap.util.Geolocation');
+        Denkmap.geolocation.updateLocation(function(geo) {
+            if(geo) {
+                console.log("Updated location");
+                Ext.defer(me.fireEvent, 500, me, ['geolocationready', geo]);
+                Ext.fly('appLoadingIndicator').destroy();
+                mainPanel.show();
+            } else {
+                console.log("Geolocation error");
+            }
+        });
     },
 
     onUpdated: function() {
