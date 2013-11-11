@@ -5,6 +5,11 @@ Ext.define('Denkmap.util.Config', {
     singleton: true,
 
     config: {
+        /**
+         * @cfg {String} version Current version number of application
+         **/
+        version: '0.0.{BUILD_NR}',
+
         leafletMap: {
             zoom: 15,
             getTileLayerUrl: function(isRetina) {

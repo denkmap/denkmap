@@ -33,7 +33,7 @@ Ext.define('Denkmap.view.about.Container', {
                             '</div>' +
                             '<dl class="denkmap-definitionlist">' +
                                 '<dt>Version</dt>' +
-                                '<dd>0.0.1</dd>' +
+                                '<dd>' + Denkmap.util.Config.getVersion() + '</dd>' +
                                 '<dt>More Information</dt>' +
                                 '<dd>Wiki: <a href="http://make.opendata.ch/wiki/project:denkmalfuehrer">make.opendata.ch</a></dd>' +
                                 '<dd>Report a bug: <a href="https://github.com/denkmap/denkmap/issues">GitHub</a></dd>' +
