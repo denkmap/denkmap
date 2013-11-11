@@ -44,19 +44,20 @@ Ext.define('Denkmap.controller.Map', {
      * @param {string} geojsonURL
      */
     _loadGeoJsonLayer: function(geojsonURL) {
-        var me = this;
+        var geojsonLayer,
+            popUp;
         console.log("Load GeoJSON layer: ", geojsonURL);
 
-        var popUp = function(feature, layer) {
+        popUp = function(feature, layer) {
             layer.bindPopup(
                 "<ul>" +
                 "<li><b>Baugruppe:</b>&nbsp;" + feature.properties.baugruppe + "</li>" +
                 "<li><b>Baujahr:</b>&nbsp;" + feature.properties.baujahr + "</li>" +
                 "</ul>"
             );
-        }
+        };
 
-        var geojsonLayer = new L.GeoJSON.AJAX(
+        geojsonLayer = new L.GeoJSON.AJAX(
             geojsonURL,
             {
                 onEachFeature: popUp,
@@ -75,7 +76,7 @@ Ext.define('Denkmap.controller.Map', {
         );
          console.log(geojsonLayer);
 
-         geojsonLayer.addTo(me.getMapCmp().getMap());
+         geojsonLayer.addTo(this.getMapCmp().getMap());
 
 
         console.log("Added to map");

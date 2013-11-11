@@ -26,6 +26,8 @@ module.exports = function(grunt) {
                 maxcomplexity: 4,
                 globals: {
                     Ext: true,
+                    Denkmap: true,
+                    L: true
                 }
             }
         }
