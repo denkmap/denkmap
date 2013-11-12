@@ -2,7 +2,7 @@
 File.open(".git/config", "a") do |f|
   f.puts <<-EOF
 [remote "heroku"]
-    url = url = git@heroku.com:kort.git
+    url = url = git@heroku.com:denkmap.git
     fetch = +refs/heads/*:refs/remotes/heroku/*
 EOF
 end

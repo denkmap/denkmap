@@ -1,5 +1,5 @@
 /**
- * Configuration for kort application
+ * Configuration for denkmap application
  */
 Ext.define('Denkmap.util.Config', {
     singleton: true,
