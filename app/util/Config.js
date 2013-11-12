@@ -1,5 +1,5 @@
 /**
- * Configuration for kort application
+ * Configuration for denkmap application
  */
 Ext.define('Denkmap.util.Config', {
     singleton: true,
@@ -8,7 +8,7 @@ Ext.define('Denkmap.util.Config', {
         /**
          * @cfg {String} version Current version number of application
          **/
-        version: '0.1.{BUILD_NR}',
+        version: '0.2.{BUILD_NR}',
 
         leafletMap: {
             zoom: 15,

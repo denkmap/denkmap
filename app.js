@@ -20,7 +20,8 @@ Ext.application({
     requires: [
         'Ext.MessageBox',
         'Denkmap.util.Geolocation',
-        'Denkmap.util.Config'
+        'Denkmap.util.Config',
+        'Denkmap.util.ObjectType'
     ],
 
     views: [

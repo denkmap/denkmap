@@ -43,5 +43,5 @@ module.exports = function(grunt) {
     grunt.registerTask('lint', 'jshint:denkmap');
 
     // Travis CI task.
-    grunt.registerTask('travis', 'jshint:denkmap qunit:kort');
+    grunt.registerTask('travis', 'jshint:denkmap qunit:denkmap');
 };
