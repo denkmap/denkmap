@@ -4,6 +4,9 @@ denkmap
 DenkMap is a location-based mobile app dedicated to monuments.
 It's name is a play of words of the German term for monument (_Denkmal_) and map.
 
+This project was started at the [Zurich Hacknights](http://opendata.ch/projects/open-data-zuerich-hacknights/) organised by [Open Data Zürich](http://www.stadt-zuerich.ch/opendata).
+You can find more information about this project on the [make.opendata.ch Wiki](http://make.opendata.ch/wiki/project:denkmalfuehrer).
+
 ## Build
 
 Denkmap is built using [Travis CI](https://travis-ci.org):
@@ -29,6 +32,17 @@ Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/downlo
 3. Convert the GML to a GeoJSON: `ogr2ogr -f geoJSON -s_srs EPSG:21781 -t_srs EPSG:4326 denkmal.geojson DenkmalschutzWFS.gml`
 
 ## Credits
+
+### Zurich Hacknight Team ("Denkmalführer")
+
+* Pirmin Kalberer
+* Thomas Husmann
+* Stefan Oderbolz
+* Adi Herzog
+* Priska Haller
+* Andi Vonlaufen
+* Beat Estermann
+* Oliver Berchtold
 
 ### Logo
 
