@@ -1,0 +1,28 @@
+{
+  "name": "denkmap",
+  "version": "0.2.x",
+  "homepage": "https://github.com/denkmap/denkmap",
+  "authors": [
+    "Stefan Oderbolz <stefan.oderbolz@liip.ch>"
+  ],
+  "description": "DenkMap is a location-based mobile app dedicated to monuments.",
+  "main": "app.js",
+  "keywords": [
+    "monuments",
+    "location-based",
+    "open data"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+      "leaflet-dist": "0.6.4",
+      "leaflet-ajax": "1.1.0"
+  }
+}
