@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+function cleanup {
+    exit $?
+}
+
+trap "cleanup" EXIT
+
 DIR=`dirname $0`
 
 # if [[ -z $TRAVIS ]] ; then
@@ -15,10 +21,8 @@ wget -P $DIR/../ux https://raw.github.com/tschortsch/Ext.ux.LeafletMap/f541eb2d6
 # Download Denkmal GeoJSON
 wget -P $DIR/../resources/remote https://dl.dropboxusercontent.com/u/138759/denkmal.geojson
 
-# Download GeoJSON AJAX layer
-wget -P $DIR/../resources/remote https://raw.github.com/calvinmetcalf/leaflet-ajax/master/dist/leaflet.ajax.min.js
-
-
 # Install dependencies
-npm install -g grunt-cli
 npm install
+bower install
+
+exit 0
