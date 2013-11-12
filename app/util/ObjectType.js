@@ -5,6 +5,18 @@ Ext.define('Denkmap.util.ObjectType', {
 
     config: {
         /**
+         * @cfg {object} default style of object styles
+         **/
+        defaultStyle: {
+            radius: 11,
+            fillColor: "#ff7800",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        },
+
+        /**
          * @cfg {object} All available object types
          **/
         objectTypes: {
@@ -57,7 +69,7 @@ Ext.define('Denkmap.util.ObjectType', {
                 }
             },
             amt: {
-                regex: new RegExp("(Amt|Ämt|Verwaltung|Kanton|Schweiz)", "gi"),
+                regex: new RegExp("(Amt|Ämt|Verwaltung|Kanton|Schweiz|Bezirk)", "gi"),
                 style: {
                     fillColor: "#EAA400"
                 }
@@ -80,18 +92,6 @@ Ext.define('Denkmap.util.ObjectType', {
                     fillColor: "#669999"
                 }
             }
-        },
-
-        /**
-         * @cfg {object} default style of object styles
-         **/
-        defaultStyle: {
-            radius: 11,
-            fillColor: "#ff7800",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
         }
     },
 
