@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+function cleanup {
+    exit $?
+}
+
+trap "cleanup" EXIT
+
 DIR=`dirname $0`
 
 # if [[ -z $TRAVIS ]] ; then
@@ -18,3 +24,5 @@ wget -P $DIR/../resources/remote https://dl.dropboxusercontent.com/u/138759/denk
 # Install dependencies
 npm install
 bower install
+
+exit 0
