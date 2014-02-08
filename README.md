@@ -31,6 +31,12 @@ Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/downlo
 2. Install ogr2ogr (apt-get install gdal-bin)
 3. Convert the GML to a GeoJSON: `ogr2ogr -f geoJSON -s_srs EPSG:21781 -t_srs EPSG:4326 denkmal.geojson DenkmalschutzWFS.gml`
 
+### Convert GeoJSON to MongoDB-importable JSON
+
+1. Remove surounding FeatureCollection
+2. Ensure that 1 object on 1 line
+3. Rename MultiPoint to Point and remove the extra array
+
 ## Credits
 
 ### Zurich Hacknight Team ("Denkmalführer")
