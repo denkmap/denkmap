@@ -3,6 +3,7 @@ ux/LeafletMap.js
 resources/sass/.sass-cache
 node_modules/
 bower_components/
+.vagrant
 
 # remote files
-resources/remote/denkmal.geojson
+resources/remote/denkmal*.geojson
