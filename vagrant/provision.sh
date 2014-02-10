@@ -7,20 +7,23 @@ function cleanup {
 
 trap "cleanup" EXIT
 
-DIR=`dirname $0`
-
 
 echo "add needed PPAs"
+sudo apt-get update
 sudo apt-get install python-software-properties python g++ make -y
 sudo add-apt-repository ppa:chris-lea/node.js
 apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
-echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list
+if grep -vFxq "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" /etc/apt/sources.list.d/*
+then
+    echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list
+fi
 
 echo "updating the package manager"
 sudo apt-get update
 sudo apt-get install apache2 git vim curl nodejs mongodb-10gen -y
 curl https://npmjs.org/install.sh | sudo clean=no sh
 sudo npm install -g bower
+sudo npm install -g forever
 
 # Download LeafletMap extension
 wget -q -O /vagrant/ux/LeafletMap.js https://raw.github.com/tschortsch/Ext.ux.LeafletMap/f541eb2d69faf1ba3b40b3964208b1e8f05c9652/ux/LeafletMap.js 
@@ -34,13 +37,21 @@ cd /vagrant && npm install
 cd /vagrant && bower install --allow-root
 
 # Import GeoJSON in MongoDB
-# mongo denkmap --eval "db.wfsktzh.remove()"
-# mongoimport --db denkmap --collection wfsktzh < $DIR/../resources/remote/denkmal_mongodb.geojson
-# mongo denkmap --eval "db.wfsktzh.ensureIndex({geometry: '2dsphere'})"
+mongo denkmap --eval "db.wfsktzh.remove()"
+mongoimport --db denkmap --collection wfsktzh < /vagrant/resources/remote/denkmal_mongodb.geojson
+mongo denkmap --eval "db.wfsktzh.ensureIndex({geometry: '2dsphere'})"
+
+# copy static files
+cp /vagrant/vagrant/templates/vhost.conf /etc/apache2/sites-enabled/
+cp /vagrant/vagrant/templates/.bash_aliases /home/vagrant/
 
 # enable the new site
 sudo a2dissite default
-cp /vagrant/vagrant/templates/vhost.conf /etc/apache2/sites-enabled/
 sudo /etc/init.d/apache2 restart
+
+# start node web server
+forever stopall || true
+forever start /vagrant/geoservice/server.js -p 3000
+forever list
 
 exit 0
