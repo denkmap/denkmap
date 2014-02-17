@@ -32,6 +32,14 @@ Ext.define('Denkmap.util.Config', {
                 radius: 1000,
                 limit: 25
             }
+        },
+
+        /**
+         * @cfg {Object} zIndex zIndex for components
+         * @cfg {Number} [zIndex.overlayLeafletMap=1500] (required) zIndex for panel to overlay leaflet map components
+         */
+        zIndex: {
+            overlayLeafletMap: 1500
         }
     },
 
