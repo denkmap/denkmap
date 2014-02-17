@@ -22,6 +22,16 @@ Ext.define('Denkmap.util.Config', {
             tileLayerAttribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a>',
             apiKey: '14f1a83f16604a708a4876a956f9dd35',
             styleId: 997
+        },
+
+        webservices: {
+            monument: {
+                getUrl: function(latitude, longitude) {
+                    return './nearby/' + latitude + ',' + longitude;
+                },
+                radius: 1000,
+                limit: 25
+            }
         }
     },
 

@@ -24,7 +24,12 @@ Ext.define('Denkmap.controller.Map', {
             mapCenterButton: {
                 tap: '_onMapNavigationViewCenterButtonTap'
             }
-        }
+        },
+
+        lLayerGroup: null,
+        lLayerControl: null,
+
+        monumentsStore: null
     },
 
     /**
@@ -32,8 +37,20 @@ Ext.define('Denkmap.controller.Map', {
      */
     init: function(){
         var me = this;
+        me.setLLayerGroup(window.L.layerGroup());
+
         me.getApplication().on({
-            geolocationready: { fn: me._createLeafletMapWrapper, scope: me }
+            geolocationready: { fn: me._setupLeafletMap, scope: me },
+            locationupdate: { fn: me._updateLeafletMap, scope: me }
+        });
+        this.setMonumentsStore(Ext.getStore('Monuments'));
+        me.getMonumentsStore().on({
+            load: {
+                fn: function() {
+                    me._updateMarkersOnMap()
+                },
+                scope: me
+            }
         });
         console.log("map init finsihed");
     },
@@ -83,16 +100,65 @@ Ext.define('Denkmap.controller.Map', {
         console.log("Added to map");
     },
 
+
     /**
      * @private
-     * Creates LeafletMap component. Is called right after the user's geolocation is available.
+     * Sets up LeafletMap component. Is called right after the user's geolocation is available.
      * @param {Denkmap.util.Geolocation} geo
      */
-    _createLeafletMapWrapper: function (geo) {
-        var me = this;
-        console.log("Map create");
+    _setupLeafletMap: function (geo) {
+        var me = this,
+            lLayerControl = new window.L.Control.Layers();
+        console.log("Setup map");
+
+        lLayerControl.addTo(me.getMapCmp().getMap());
+        this.setLLayerControl(lLayerControl);
+        this.getLLayerControl().addOverlay(me.getLLayerGroup(), 'monuments');
+
+        me._updateLeafletMap(geo);
+    },
+
+    /**
+     * @private
+     * Updates LeafletMap component. Is called right after a locationupdate.
+     * @param {Denkmap.util.Geolocation} geo
+     */
+    _updateLeafletMap: function (geo) {
+        var me = this,
+            proxyUrl;
+        console.log("Map update");
         me._centerMapToCurrentPosition(geo);
-        me._loadGeoJsonLayer('./resources/remote/denkmal.geojson');
+
+        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(geo.getLatitude(), geo.getLongitude());
+        me.getMonumentsStore().getProxy().setUrl(proxyUrl);
+        me.getMonumentsStore().load();
+    },
+
+    _updateMarkersOnMap: function() {
+        var me = this;
+        me.getLLayerGroup().clearLayers();
+
+        me.getMonumentsStore().each(function(monument) {
+            me.getLLayerGroup().addLayer(me._createLMarkerFromModel(monument));
+        });
+    },
+
+    /**
+     * @private
+     * @param record
+     * @returns {L.marker} marker
+     */
+    _createLMarkerFromModel: function(model) {
+        console.log(model.get('geometry').coordinates);
+        console.log(model.get('geometry').coordinates[0]);
+        console.log(model.get('geometry').coordinates[1]);
+        var me = this,
+            lat = model.get('geometry').coordinates[0],
+            lon = model.get('geometry').coordinates[1],
+            marker = window.L.marker([lat, lon]);
+        marker.record=model;
+        console.log(marker);
+        return marker;
     },
 
     /**
