@@ -20,8 +20,10 @@ fi
 
 echo "updating the package manager"
 sudo apt-get update
-sudo apt-get install apache2 git vim curl nodejs mongodb-10gen -y
-curl https://npmjs.org/install.sh | sudo clean=no sh
+sudo apt-get install git vim curl nodejs mongodb-10gen -y
+curl -s -L https://www.npmjs.org/install.sh > npm-install-$$.sh
+sudo clean=no sh npm-install-$$.sh
+rm npm-install-$$.sh
 sudo npm install -g bower
 sudo npm install -g forever
 
@@ -41,17 +43,9 @@ mongo denkmap --eval "db.wfsktzh.remove()"
 mongoimport --db denkmap --collection wfsktzh < /vagrant/resources/remote/denkmal_mongodb.geojson
 mongo denkmap --eval "db.wfsktzh.ensureIndex({geometry: '2dsphere'})"
 
-# copy static files
-cp /vagrant/vagrant/templates/vhost.conf /etc/apache2/sites-enabled/
-cp /vagrant/vagrant/templates/.bash_aliases /home/vagrant/
-
-# enable the new site
-sudo a2dissite default
-sudo /etc/init.d/apache2 restart
-
 # start node web server
 forever stopall || true
-forever start /vagrant/geoservice/server.js -p 3000
+forever start /vagrant/server.js -p 80
 forever list
 
 exit 0
