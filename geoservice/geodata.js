@@ -1,4 +1,6 @@
-var dbUrl = "denkmap",
+var dbUrl = process.env.MONGOLAB_URI ||
+      process.env.MONGOHQ_URL ||
+      'mongodb://localhost/denkmap',
     coll = ["wfsktzh"],
     db = require("mongojs").connect(dbUrl, coll);
 
@@ -6,12 +8,12 @@ exports.count = function(callbackFn) {
     db.wfsktzh.runCommand('count', function(err, res) {
         callbackFn(res);
     });
-}
+};
 
 exports.nearby = function(lat, lon, callbackFn) {
     db.wfsktzh.find({
         geometry: {
-            $near: { 
+            $near: {
                 $geometry : {
                     type: "Point",
                     coordinates: [lon, lat]
@@ -23,4 +25,4 @@ exports.nearby = function(lat, lon, callbackFn) {
     function(err, res) {
         callbackFn(res);
     });
-}
+};

@@ -53,7 +53,7 @@ Ext.define('Denkmap.controller.Map', {
         me.getMonumentsStore().on({
             load: {
                 fn: function() {
-                    me._updateMarkersOnMap()
+                    me._updateMarkersOnMap();
                 },
                 scope: me
             }
