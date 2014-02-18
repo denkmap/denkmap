@@ -21,6 +21,7 @@ Run the install script:
 
 ```bash
 ./scripts/install.sh
+./scripts/import_db.sh
 ```
 
 Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) installed on your development machine.
@@ -36,6 +37,15 @@ Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/downlo
 1. Remove surounding FeatureCollection
 2. Ensure that 1 object on 1 line
 3. Rename MultiPoint to Point and remove the extra array
+
+### Deployment to Heroku
+
+Please ensure that there is a running MongoDB instance on Heroku. Currently the MongoLab add-on is used for this.
+To activate it run:
+
+```bash
+heroku addons:add mongolab
+```
 
 ## Credits
 

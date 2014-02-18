@@ -1,5 +1,4 @@
 var dbUrl = process.env.MONGOLAB_URI ||
-      process.env.MONGOHQ_URL ||
       'mongodb://localhost/denkmap',
     coll = ["wfsktzh"],
     db = require("mongojs").connect(dbUrl, coll);

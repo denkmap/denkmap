@@ -2,7 +2,7 @@ var express = require('express'),
     geodata = require('./geoservice/geodata.js'),
     argv = require('optimist').argv,
     app = express(),
-    port = argv.p || argv.port || 80;
+    port = process.env.PORT || argv.p || argv.port || 80;
 
 
 app.get('/count', function(req, res) {
