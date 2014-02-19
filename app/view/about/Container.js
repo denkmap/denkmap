@@ -29,7 +29,7 @@ Ext.define('Denkmap.view.about.Container', {
                             '</div>' +
                             '<div class="introduction">' +
                                 '<p>This project was started at the <a href="http://opendata.ch/projects/open-data-zuerich-hacknights/">Zurich Hacknights</a> ' +
-                                'organised by <a href="www.stadt-zuerich.ch/opendata">Open Data Zürich</a>.</p>' +
+                                'organised by <a href="http://www.stadt-zuerich.ch/opendata">Open Data Zürich</a>.</p>' +
                             '</div>' +
                             '<dl class="denkmap-definitionlist">' +
                                 '<dt>Version</dt>' +

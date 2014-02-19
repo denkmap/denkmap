@@ -105,7 +105,11 @@
     "resources": [
         "resources/images",
         "resources/icons",
-        "resources/startup"
+        "resources/startup",
+        "resources/remote",
+        "bower_components",
+        "geoservice",
+        "server.js"
     ],
 
     /**

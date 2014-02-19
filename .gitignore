@@ -2,7 +2,8 @@ touch-2.3.0/
 ux/LeafletMap.js
 resources/sass/.sass-cache
 node_modules/
+bower_components/
+.vagrant
 
 # remote files
-resources/remote/denkmal.geojson
-resources/remote/leaflet.ajax.min.js
+resources/remote/denkmal*.geojson

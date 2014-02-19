@@ -8,7 +8,7 @@ Ext.define('Denkmap.util.Config', {
         /**
          * @cfg {String} version Current version number of application
          **/
-        version: '0.2.{BUILD_NR}',
+        version: '1.0.{BUILD_NR}',
 
         leafletMap: {
             zoom: 15,
@@ -22,6 +22,24 @@ Ext.define('Denkmap.util.Config', {
             tileLayerAttribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a>',
             apiKey: '14f1a83f16604a708a4876a956f9dd35',
             styleId: 997
+        },
+
+        webservices: {
+            monument: {
+                getUrl: function(latitude, longitude) {
+                    return './nearby/' + latitude + ',' + longitude;
+                },
+                radius: 1000,
+                limit: 25
+            }
+        },
+
+        /**
+         * @cfg {Object} zIndex zIndex for components
+         * @cfg {Number} [zIndex.overlayLeafletMap=1500] (required) zIndex for panel to overlay leaflet map components
+         */
+        zIndex: {
+            overlayLeafletMap: 1500
         }
     },
 

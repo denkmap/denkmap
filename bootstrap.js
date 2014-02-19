@@ -21,8 +21,15 @@ Ext.Loader.addClassPathMappings({
   "Ext.ux.LeafletMap": "ux/LeafletMap.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
+  "Denkmap.controller.Map": [],
+  "Denkmap.model.Monument": [],
+  "Denkmap.store.Monuments": [],
+  "Denkmap.util.Config": [],
+  "Denkmap.util.Geolocation": [],
+  "Denkmap.util.ObjectType": [],
   "Denkmap.view.Main": [],
   "Denkmap.view.about.Container": [],
+  "Denkmap.view.map.NavigationView": [],
   "Ext.AbstractComponent": [],
   "Ext.AbstractManager": [],
   "Ext.AbstractPlugin": [],
@@ -619,17 +626,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.layout.wrapper.BoxDock": [],
   "Ext.layout.wrapper.Dock": [],
   "Ext.layout.wrapper.Inner": [],
-  "Ext.log.Base": [],
-  "Ext.log.Logger": [],
-  "Ext.log.filter.Filter": [],
-  "Ext.log.filter.Priority": [],
-  "Ext.log.formatter.Default": [],
-  "Ext.log.formatter.Formatter": [],
-  "Ext.log.formatter.Identity": [],
-  "Ext.log.writer.Console": [],
-  "Ext.log.writer.DocumentTitle": [],
-  "Ext.log.writer.Remote": [],
-  "Ext.log.writer.Writer": [],
   "Ext.mixin.Bindable": [],
   "Ext.mixin.Filterable": [],
   "Ext.mixin.Mixin": [],
@@ -759,11 +755,20 @@ Ext.ClassManager.addNameAlternateMappings({
   ]
 });
 Ext.ClassManager.addNameAliasMappings({
+  "Denkmap.controller.Map": [],
+  "Denkmap.model.Monument": [],
+  "Denkmap.store.Monuments": [],
+  "Denkmap.util.Config": [],
+  "Denkmap.util.Geolocation": [],
+  "Denkmap.util.ObjectType": [],
   "Denkmap.view.Main": [
     "widget.main"
   ],
   "Denkmap.view.about.Container": [
     "widget.aboutcontainer"
+  ],
+  "Denkmap.view.map.NavigationView": [
+    "widget.mapnavigationview"
   ],
   "Ext.AbstractComponent": [],
   "Ext.AbstractManager": [],
@@ -1559,17 +1564,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.layout.wrapper.BoxDock": [],
   "Ext.layout.wrapper.Dock": [],
   "Ext.layout.wrapper.Inner": [],
-  "Ext.log.Base": [],
-  "Ext.log.Logger": [],
-  "Ext.log.filter.Filter": [],
-  "Ext.log.filter.Priority": [],
-  "Ext.log.formatter.Default": [],
-  "Ext.log.formatter.Formatter": [],
-  "Ext.log.formatter.Identity": [],
-  "Ext.log.writer.Console": [],
-  "Ext.log.writer.DocumentTitle": [],
-  "Ext.log.writer.Remote": [],
-  "Ext.log.writer.Writer": [],
   "Ext.mixin.Bindable": [],
   "Ext.mixin.Filterable": [],
   "Ext.mixin.Mixin": [],

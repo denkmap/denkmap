@@ -1,0 +1,30 @@
+{
+    "predef": [
+        "Ext",
+        "Denkmap",
+        "L"
+    ],
+
+    "jquery": true,
+    "curly": true,
+    "node": true,
+    "strict": false,
+    "eqeqeq": true,
+    "immed": true,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "sub": true,
+    "undef": true,
+    "unused": false,
+    "onevar": true,
+    "boss": true,
+    "eqnull": true,
+    "browser": true,
+    "devel": true,
+    "trailing": true,
+    "white": false,
+    "maxcomplexity": 4
+}
+
+
