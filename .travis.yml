@@ -21,8 +21,9 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: dXd4p/6phPPpKed1sf/s2P++MLkLZgF+NyzNjcmoZRB+GFdSyDhtPqO08e40JGVL+pbdlGyto1U66BAF0aOFux9XxPYCeZ6l3KzqzWOso0hWnHfwrGWNS11/IkPimYMdvRO8D+2YcEquVpeRX+mhum9TRoUdlWcLbTF0v1yulek=
-  app: denkmap
+  app:
+    master: denkmap
+    develop: denkmap-dev
   on:
-    branch: master
     repo: denkmap/denkmap
     node: '0.10'
