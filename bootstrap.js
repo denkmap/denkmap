@@ -22,6 +22,8 @@ Ext.Loader.addClassPathMappings({
 });
 Ext.ClassManager.addNameAlternateMappings({
   "Denkmap.controller.Map": [],
+  "Denkmap.model.Monument": [],
+  "Denkmap.store.Monuments": [],
   "Denkmap.util.Config": [],
   "Denkmap.util.Geolocation": [],
   "Denkmap.util.ObjectType": [],
@@ -754,6 +756,8 @@ Ext.ClassManager.addNameAlternateMappings({
 });
 Ext.ClassManager.addNameAliasMappings({
   "Denkmap.controller.Map": [],
+  "Denkmap.model.Monument": [],
+  "Denkmap.store.Monuments": [],
   "Denkmap.util.Config": [],
   "Denkmap.util.Geolocation": [],
   "Denkmap.util.ObjectType": [],
