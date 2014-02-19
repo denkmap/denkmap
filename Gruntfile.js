@@ -4,7 +4,16 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         jshint: {
-            'denkmap': ['app/**/*.js', 'Grunfile.js', 'package.json', 'packager.json', 'bower.json', '.jshintrc', 'app.js*'],
+            'denkmap': [
+                'app/**/*.js',
+                'Grunfile.js',
+                'package.json',
+                'packager.json',
+                'bower.json',
+                '.jshintrc',
+                'app.js*',
+                'geoservice/**/*.js'
+            ],
             options: {
                 jshintrc: '.jshintrc'
             }

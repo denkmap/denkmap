@@ -21,6 +21,7 @@ Run the install script:
 
 ```bash
 ./scripts/install.sh
+./scripts/import_db.sh
 ```
 
 Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) installed on your development machine.
@@ -30,6 +31,21 @@ Make sure you have [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/downlo
 1. Download WFS Service as GML: http://maps.zh.ch/wfs/DenkmalschutzWFS?service=wfs&version=1.1.0&request=GetFeature&typeName=denkmalschutzobjekte
 2. Install ogr2ogr (apt-get install gdal-bin)
 3. Convert the GML to a GeoJSON: `ogr2ogr -f geoJSON -s_srs EPSG:21781 -t_srs EPSG:4326 denkmal.geojson DenkmalschutzWFS.gml`
+
+### Convert GeoJSON to MongoDB-importable JSON
+
+1. Remove surounding FeatureCollection
+2. Ensure that 1 object on 1 line
+3. Rename MultiPoint to Point and remove the extra array
+
+### Deployment to Heroku
+
+Please ensure that there is a running MongoDB instance on Heroku. Currently the MongoLab add-on is used for this.
+To activate it run:
+
+```bash
+heroku addons:add mongolab
+```
 
 ## Credits
 

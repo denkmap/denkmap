@@ -51,7 +51,13 @@ Ext.define('Denkmap.view.map.NavigationView', {
                     icon : './resources/images/transparent_loader.gif',
                     align: 'right',
                     hidden: true
-
+                },
+                {
+                    xtype: 'button',
+                    cls: 'mapRefreshButton',
+                    iconCls: 'refresh',
+                    iconMask: true,
+                    align: 'right'
                 }
             ]
         }

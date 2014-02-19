@@ -15,6 +15,8 @@ Ext.define('Denkmap.controller.Map', {
         refs: {
             mapNavigationView: '#mapNavigationView',
             mapCenterButton: '#mapNavigationView .button[cls=mapCenterButton]',
+            mapRefreshButton: '#mapNavigationView .button[cls=mapRefreshButton]',
+            mapLoadingIcon: '#mapNavigationView .button[cls=mapLoadingIcon]',
             mapCmp: '#leafletmap'
         },
         control: {
@@ -23,8 +25,17 @@ Ext.define('Denkmap.controller.Map', {
             },
             mapCenterButton: {
                 tap: '_onMapNavigationViewCenterButtonTap'
+            },
+            mapRefreshButton: {
+                tap: '_onMapNavigationViewRefreshButtonTap'
             }
-        }
+        },
+
+        lLayerGroup: null,
+        lLayerControl: null,
+        markersLoaded: false,
+
+        monumentsStore: null
     },
 
     /**
@@ -32,67 +43,113 @@ Ext.define('Denkmap.controller.Map', {
      */
     init: function(){
         var me = this;
+        me.setLLayerGroup(window.L.layerGroup());
+
         me.getApplication().on({
-            geolocationready: { fn: me._createLeafletMapWrapper, scope: me }
+            geolocationready: { fn: me._setupLeafletMap, scope: me },
+            locationupdate: { fn: me._updateLeafletMap, scope: me }
+        });
+        this.setMonumentsStore(Ext.getStore('Monuments'));
+        me.getMonumentsStore().on({
+            load: {
+                fn: function() {
+                    me._updateMarkersOnMap();
+                },
+                scope: me
+            }
         });
         console.log("map init finsihed");
     },
 
     /**
      * @private
-     * Loads a GeoJSON layer from the specified URL.
-     * @param {string} geojsonURL
+     * Sets up LeafletMap component. Is called right after the user's geolocation is available.
+     * @param {Denkmap.util.Geolocation} geo
      */
-    _loadGeoJsonLayer: function(geojsonURL) {
-        var geojsonLayer,
-            popUp,
-            objectType,
-            me = this;
-        console.log("Load GeoJSON layer: ", geojsonURL);
+    _setupLeafletMap: function (geo) {
+        var me = this,
+            lLayerControl = new window.L.Control.Layers();
+        console.log("Setup map");
 
-        popUp = function(feature, layer) {
-            var popupHtml = "<ul>";
-            if (feature.properties.baugruppe) {
-                popupHtml += "<li><b>Baugruppe:</b>&nbsp;" + feature.properties.baugruppe + "</li>";
-            }
-            if (feature.properties.objtext) {
-                popupHtml += "<li><b>Objekt:</b>&nbsp;" + feature.properties.objtext + "</li>";
-            }
-            if (feature.properties.baujahr) {
-                popupHtml += "<li><b>Baujahr:</b>&nbsp;" + feature.properties.baujahr + "</li>";
-            }
-            popupHtml += "</ul>";
+        lLayerControl.addTo(me.getMapCmp().getMap());
+        me.setLLayerControl(lLayerControl);
+        me.getLLayerControl().addOverlay(me.getLLayerGroup(), 'Monuments');
+        me._enableAllLayers();
+        lLayerControl.removeFrom(me.getMapCmp().getMap());
 
-            layer.bindPopup(popupHtml);
-        };
-
-        objectType = Ext.create('Denkmap.util.ObjectType');
-
-        geojsonLayer = new L.GeoJSON.AJAX(
-            geojsonURL,
-            {
-                onEachFeature: popUp,
-                pointToLayer: function (feature, latlng) {
-                    var style = objectType.getStyleForMonument(feature.properties);
-                    return L.circleMarker(latlng, style);
-                }
-
-            }
-        );
-        geojsonLayer.addTo(this.getMapCmp().getMap());
-        console.log("Added to map");
+        me._updateLeafletMap(geo);
     },
 
     /**
      * @private
-     * Creates LeafletMap component. Is called right after the user's geolocation is available.
+     * Makes the layer visible and remove the control widget
+     * @param geo
+     */
+    _enableAllLayers: function() {
+        //this is currently an ugly hack as no clean method to enable a layer is known
+        var inputNodeList = document.getElementsByClassName('leaflet-control-layers-selector'),
+            i;
+        for (i = 0; i<inputNodeList.length; i++) { inputNodeList[i].checked=true; }
+        this.getLLayerControl()._onInputClick();
+    },
+
+    /**
+     * @private
+     * Updates LeafletMap component. Is called right after a locationupdate.
      * @param {Denkmap.util.Geolocation} geo
      */
-    _createLeafletMapWrapper: function (geo) {
-        var me = this;
-        console.log("Map create");
+    _updateLeafletMap: function (geo) {
+        var me = this,
+            proxyUrl;
+        console.log("Map update");
         me._centerMapToCurrentPosition(geo);
-        me._loadGeoJsonLayer('./resources/remote/denkmal.geojson');
+
+        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(geo.getLatitude(), geo.getLongitude());
+        me.getMonumentsStore().getProxy().setUrl(proxyUrl);
+        me.getMonumentsStore().load();
+    },
+
+    _updateMarkersOnMap: function() {
+        var me = this;
+        me.getLLayerGroup().clearLayers();
+
+        me.getMonumentsStore().each(function(monument) {
+            me.getLLayerGroup().addLayer(me._createLMarkerFromModel(monument));
+        });
+        me.setMarkersLoaded(true);
+    },
+
+    /**
+     * @private
+     * @param record
+     * @returns {L.marker} marker
+     */
+    _createLMarkerFromModel: function(model) {
+        var me = this,
+            lat = model.get('geometry').coordinates[1],
+            lon = model.get('geometry').coordinates[0],
+            objectType = Ext.create('Denkmap.util.ObjectType'),
+            style = objectType.getStyleForMonument(model.get('properties')),
+            marker = window.L.circleMarker([lat, lon], style),
+            popupHtml;
+
+        popupHtml = "<ul>";
+        if (model.get('properties').baugruppe) {
+            popupHtml += "<li><b>Baugruppe:</b>&nbsp;" + model.get('properties').baugruppe + "</li>";
+        }
+        if (model.get('properties').objtext) {
+            popupHtml += "<li><b>Objekt:</b>&nbsp;" + model.get('properties').objtext + "</li>";
+        }
+        if (model.get('properties').baujahr) {
+            popupHtml += "<li><b>Baujahr:</b>&nbsp;" + model.get('properties').baujahr + "</li>";
+        }
+        popupHtml += "</ul>";
+
+        marker.bindPopup(popupHtml);
+        marker.record = model;
+
+        console.log(marker);
+        return marker;
     },
 
     /**
@@ -105,9 +162,63 @@ Ext.define('Denkmap.controller.Map', {
     /**
      * @private
      */
+    _onMapNavigationViewRefreshButtonTap: function () {
+        var me = this;
+        me.setMarkersLoaded(false);
+        me._updateLeafletMap(me.getMapCmp().getGeo());
+        me._enterLoadingState(true);
+    },
+
+    /**
+     * @private
+     */
     _centerMapToCurrentPosition: function(geo) {
-        console.log('centerMapToCurrentPosition');
         this.getMapCmp().setMapCenter(this.getCurrentLocationLatLng());
+    },
+
+    /**
+     * @private
+     * @param {boolean} silentLoading Indicates whether a blocking loading message should be overlaid or not.
+     * @param {boolean} recursiveCall Private param that should always be false when called from outside.
+     */
+    _enterLoadingState: function(silentLoading,recursiveCall) {
+        if(!recursiveCall) {
+            this._showLoadMask(silentLoading);
+        }
+        if(this.getMarkersLoaded()) {
+            this._hideLoadMask(silentLoading);
+        } else {
+            Ext.defer(this._enterLoadingState, 200, this, [silentLoading,true]);
+        }
+    },
+
+
+    /**
+     * @private
+     */
+    _showLoadMask: function(silentLoading) {
+        console.log("show load mask");
+        this.getMapCenterButton().disable();
+        this.getMapRefreshButton().hide();
+        this.getMapLoadingIcon().show();
+        if(!silentLoading) {
+            this.getMapNavigationView().setMasked({
+                xtype: 'loadmask',
+                message: "Loading...",
+                zIndex: Denkmap.util.Config.getZIndex().overlayLeafletMap
+            });
+        }
+    },
+
+    /**
+     * @private
+     */
+    _hideLoadMask: function(silentLoading) {
+        console.log("hide load mask");
+        this.getMapLoadingIcon().hide();
+        this.getMapCenterButton().enable();
+        this.getMapRefreshButton().show();
+        if(!silentLoading) {this.getMapNavigationView().setMasked(false);}
     },
 
     /**

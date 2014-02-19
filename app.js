@@ -28,6 +28,14 @@ Ext.application({
         'Main'
     ],
 
+    models: [
+        'Monument'
+    ],
+
+    stores: [
+        'Monuments'
+    ],
+
     controllers: [
         'Map'
     ],
@@ -68,6 +76,7 @@ Ext.application({
                 mainPanel.show();
             } else {
                 console.log("Geolocation error");
+                console.log(geo);
             }
         });
     },
