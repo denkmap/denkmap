@@ -34,6 +34,7 @@ Ext.define('Denkmap.controller.Map', {
         lLayerGroup: null,
         lLayerControl: null,
         markersLoaded: false,
+        map: null,
 
         monumentsStore: null
     },
@@ -49,12 +50,12 @@ Ext.define('Denkmap.controller.Map', {
             geolocationready: { fn: me._setupLeafletMap, scope: me },
             locationupdate: { fn: me._updateLeafletMap, scope: me }
         });
+
+
         this.setMonumentsStore(Ext.getStore('Monuments'));
         me.getMonumentsStore().on({
             load: {
-                fn: function() {
-                    me._updateMarkersOnMap();
-                },
+                fn: me._updateMarkersOnMap,
                 scope: me
             }
         });
@@ -76,8 +77,9 @@ Ext.define('Denkmap.controller.Map', {
         me.getLLayerControl().addOverlay(me.getLLayerGroup(), 'Monuments');
         me._enableAllLayers();
         lLayerControl.removeFrom(me.getMapCmp().getMap());
-
-        me._updateLeafletMap(geo);
+        me.setMap(me.getMapCmp().getMap());
+        me.getMap().on('moveend', me._updateLeafletMap, me);
+        me._updateLeafletMap();
     },
 
     /**
@@ -96,15 +98,17 @@ Ext.define('Denkmap.controller.Map', {
     /**
      * @private
      * Updates LeafletMap component. Is called right after a locationupdate.
-     * @param {Denkmap.util.Geolocation} geo
      */
-    _updateLeafletMap: function (geo) {
+    _updateLeafletMap: function() {
         var me = this,
+            map = me.getMap(),
             proxyUrl;
         console.log("Map update");
-        me._centerMapToCurrentPosition(geo);
 
-        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(geo.getLatitude(), geo.getLongitude());
+        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(
+            map.getCenter().lat,
+            map.getCenter().lng
+        );
         me.getMonumentsStore().getProxy().setUrl(proxyUrl);
         me.getMonumentsStore().load();
     },
@@ -148,7 +152,6 @@ Ext.define('Denkmap.controller.Map', {
         marker.bindPopup(popupHtml);
         marker.record = model;
 
-        console.log(marker);
         return marker;
     },
 
