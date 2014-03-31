@@ -60,7 +60,7 @@ Ext.define('Denkmap.controller.Map', {
                 scope: me
             }
         });
-        console.log("map init finsihed");
+        Ext.Logger.info("map init finsihed");
     },
 
     /**
@@ -71,7 +71,7 @@ Ext.define('Denkmap.controller.Map', {
     _setupLeafletMap: function (geo) {
         var me = this,
             lLayerControl = new window.L.Control.Layers();
-        console.log("Setup map");
+        Ext.Logger.info("Setup map");
 
         lLayerControl.addTo(me.getMapCmp().getMap());
         me.setLLayerControl(lLayerControl);
@@ -104,7 +104,7 @@ Ext.define('Denkmap.controller.Map', {
         var me = this,
             map = me.getMap(),
             proxyUrl;
-        console.log("Map update");
+        Ext.Logger.info("Map update");
 
         proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(
             map.getCenter().lat,
@@ -201,7 +201,7 @@ Ext.define('Denkmap.controller.Map', {
      * @private
      */
     _showLoadMask: function(silentLoading) {
-        console.log("show load mask");
+        Ext.Logger.info("show load mask");
         this.getMapCenterButton().disable();
         this.getMapRefreshButton().hide();
         this.getMapLoadingIcon().show();
@@ -218,7 +218,7 @@ Ext.define('Denkmap.controller.Map', {
      * @private
      */
     _hideLoadMask: function(silentLoading) {
-        console.log("hide load mask");
+        Ext.Logger.info("hide load mask");
         this.getMapLoadingIcon().hide();
         this.getMapCenterButton().enable();
         this.getMapRefreshButton().show();
