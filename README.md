@@ -15,7 +15,25 @@ Denkmap is built using [Travis CI](https://travis-ci.org):
 
 The app is deployed on [Heroku](https://www.heroku.com/): http://denkmap.herokuapp.com
 
-## Installation
+
+## Development
+
+To run denkmap on your local machine, you need to install vagrant (>=1.5). Then all you have to do is run the following command:
+
+```bash
+vagrant up
+```
+
+This setups a virtual machine with all needed software and configuration.
+For easier access make sure to add the following line to your `hosts` file (usually `/etc/hosts`):
+
+```
+172.14.13.44 denkmap.lo
+```
+
+After those steps you can access your local version of denkmap using any browser with the url http://denkmap.lo.
+
+## Manual installation
 
 Run the install script:
 
