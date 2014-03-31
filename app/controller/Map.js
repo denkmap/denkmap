@@ -230,6 +230,6 @@ Ext.define('Denkmap.controller.Map', {
      */
     getCurrentLocationLatLng: function() {
         var geo = this.getMapCmp().getGeo();
-        return L.latLng(geo.getLatitude(), geo.getLongitude());
+        return window.L.latLng(geo.getLatitude(), geo.getLongitude());
     }
 });
