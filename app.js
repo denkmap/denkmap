@@ -72,12 +72,12 @@ Ext.application({
             if(geo) {
                 console.log("Updated location");
                 Ext.defer(me.fireEvent, 500, me, ['geolocationready', geo]);
-                Ext.fly('appLoadingIndicator').destroy();
-                mainPanel.show();
             } else {
                 console.log("Geolocation error");
-                console.log(geo);
+                Ext.defer(me.fireEvent, 500, me, ['geolocationerror']);
             }
+            Ext.fly('appLoadingIndicator').destroy();
+            mainPanel.show();
         });
     },
 

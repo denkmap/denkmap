@@ -48,6 +48,7 @@ Ext.define('Denkmap.controller.Map', {
 
         me.getApplication().on({
             geolocationready: { fn: me._setupLeafletMap, scope: me },
+            geolocationerror: { fn: me._setupLeafletMap, scope: me },
             locationupdate: { fn: me._updateLeafletMap, scope: me }
         });
 
