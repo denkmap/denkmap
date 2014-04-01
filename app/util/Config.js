@@ -8,7 +8,7 @@ Ext.define('Denkmap.util.Config', {
         /**
          * @cfg {String} version Current version number of application
          **/
-        version: '1.0.{BUILD_NR}',
+        version: '1.1.{BUILD_NR}',
 
         leafletMap: {
             zoom: 15,
