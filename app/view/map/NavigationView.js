@@ -29,7 +29,6 @@ Ext.define('Denkmap.view.map.NavigationView', {
             tileLayerUrl: Denkmap.util.Config.getLeafletMap().getTileLayerUrl(window.L.Browser.retina),
             tileLayerOptions: {
                 apikey: Denkmap.util.Config.getLeafletMap().apiKey,
-                styleId: Denkmap.util.Config.getLeafletMap().styleId,
                 attribution: Denkmap.util.Config.getLeafletMap().tileLayerAttribution,
                 detectRetina: true
             }
