@@ -46,6 +46,10 @@ Ext.define('Denkmap.view.about.Container', {
                                 '<dd>Andi Vonlaufen</dd>' +
                                 '<dd>Beat Estermann</dd>' +
                                 '<dd>Oliver Berchtold</dd>' +
+                                '<dt>Credits</dt>' +
+                                '<dd>Map data: <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a></dd>' +
+                                '<dd>Tiles: <a href="http://geodienste.lyrk.de/" target="_blank">Lyrk</a> (<a href="https://geodienste.lyrk.de/copyright" target="_blank">Copyright</a>)</dd>' +
+                                '<dd>Base data: <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=935" target="_blank">Geodaten &copy; GIS-ZH</a> (License: <a href="http://www.geolion.zh.ch/GIS-ZH%20Lizenz.pdf" target="_blank">GIS-ZH Lizenz</a>)</dd>' +
                             '</dl>' +
                         '</div>'
             }

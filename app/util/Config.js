@@ -19,7 +19,7 @@ Ext.define('Denkmap.util.Config', {
                     return 'http://{s}.tiles.lyrk.org/ls/{z}/{x}/{y}?apikey={apikey}';
                 }
             },
-tileLayerAttribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a> | Tiles by <a href="http://geodienste.lyrk.de/" target="_blank">Lyrk</a>',
+            tileLayerAttribution: 'Data: &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">GIS-ZH</a> | Tiles: <a href="http://geodienste.lyrk.de/" target="_blank">Lyrk</a>',
             apiKey: '4099deb66be745a3b4889c3a2b48237c'
         },
 
