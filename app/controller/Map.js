@@ -34,6 +34,7 @@ Ext.define('Denkmap.controller.Map', {
         lLayerGroup: null,
         lLayerControl: null,
         markersLoaded: false,
+        map: null,
 
         monumentsStore: null
     },
@@ -47,18 +48,19 @@ Ext.define('Denkmap.controller.Map', {
 
         me.getApplication().on({
             geolocationready: { fn: me._setupLeafletMap, scope: me },
+            geolocationerror: { fn: me._setupLeafletMap, scope: me },
             locationupdate: { fn: me._updateLeafletMap, scope: me }
         });
+
+
         this.setMonumentsStore(Ext.getStore('Monuments'));
         me.getMonumentsStore().on({
             load: {
-                fn: function() {
-                    me._updateMarkersOnMap();
-                },
+                fn: me._updateMarkersOnMap,
                 scope: me
             }
         });
-        console.log("map init finsihed");
+        Ext.Logger.info("map init finsihed");
     },
 
     /**
@@ -69,15 +71,16 @@ Ext.define('Denkmap.controller.Map', {
     _setupLeafletMap: function (geo) {
         var me = this,
             lLayerControl = new window.L.Control.Layers();
-        console.log("Setup map");
+        Ext.Logger.info("Setup map");
 
         lLayerControl.addTo(me.getMapCmp().getMap());
         me.setLLayerControl(lLayerControl);
         me.getLLayerControl().addOverlay(me.getLLayerGroup(), 'Monuments');
         me._enableAllLayers();
         lLayerControl.removeFrom(me.getMapCmp().getMap());
-
-        me._updateLeafletMap(geo);
+        me.setMap(me.getMapCmp().getMap());
+        me.getMap().on('moveend', me._updateLeafletMap, me);
+        me._updateLeafletMap();
     },
 
     /**
@@ -96,15 +99,17 @@ Ext.define('Denkmap.controller.Map', {
     /**
      * @private
      * Updates LeafletMap component. Is called right after a locationupdate.
-     * @param {Denkmap.util.Geolocation} geo
      */
-    _updateLeafletMap: function (geo) {
+    _updateLeafletMap: function() {
         var me = this,
+            map = me.getMap(),
             proxyUrl;
-        console.log("Map update");
-        me._centerMapToCurrentPosition(geo);
+        Ext.Logger.info("Map update");
 
-        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(geo.getLatitude(), geo.getLongitude());
+        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(
+            map.getCenter().lat,
+            map.getCenter().lng
+        );
         me.getMonumentsStore().getProxy().setUrl(proxyUrl);
         me.getMonumentsStore().load();
     },
@@ -148,7 +153,6 @@ Ext.define('Denkmap.controller.Map', {
         marker.bindPopup(popupHtml);
         marker.record = model;
 
-        console.log(marker);
         return marker;
     },
 
@@ -197,7 +201,7 @@ Ext.define('Denkmap.controller.Map', {
      * @private
      */
     _showLoadMask: function(silentLoading) {
-        console.log("show load mask");
+        Ext.Logger.info("show load mask");
         this.getMapCenterButton().disable();
         this.getMapRefreshButton().hide();
         this.getMapLoadingIcon().show();
@@ -214,7 +218,7 @@ Ext.define('Denkmap.controller.Map', {
      * @private
      */
     _hideLoadMask: function(silentLoading) {
-        console.log("hide load mask");
+        Ext.Logger.info("hide load mask");
         this.getMapLoadingIcon().hide();
         this.getMapCenterButton().enable();
         this.getMapRefreshButton().show();
@@ -227,6 +231,6 @@ Ext.define('Denkmap.controller.Map', {
      */
     getCurrentLocationLatLng: function() {
         var geo = this.getMapCmp().getGeo();
-        return L.latLng(geo.getLatitude(), geo.getLongitude());
+        return window.L.latLng(geo.getLatitude(), geo.getLongitude());
     }
 });

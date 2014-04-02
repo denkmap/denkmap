@@ -8,20 +8,19 @@ Ext.define('Denkmap.util.Config', {
         /**
          * @cfg {String} version Current version number of application
          **/
-        version: '1.0.{BUILD_NR}',
+        version: '1.1.{BUILD_NR}',
 
         leafletMap: {
             zoom: 15,
             getTileLayerUrl: function(isRetina) {
                 if(isRetina) {
-                    return 'http://{s}.tile.cloudmade.com/{apikey}/{styleId}@2x/256/{z}/{x}/{y}.png';
+                    return 'http://{s}.tiles.lyrk.org/lr/{z}/{x}/{y}?apikey={apikey}';
                 } else {
-                    return 'http://{s}.tile.cloudmade.com/{apikey}/{styleId}/256/{z}/{x}/{y}.png';
+                    return 'http://{s}.tiles.lyrk.org/ls/{z}/{x}/{y}?apikey={apikey}';
                 }
             },
-            tileLayerAttribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a>',
-            apiKey: '14f1a83f16604a708a4876a956f9dd35',
-            styleId: 997
+            tileLayerAttribution: 'Data: &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">GIS-ZH</a> | Tiles: <a href="http://geodienste.lyrk.de/" target="_blank">Lyrk</a>',
+            apiKey: '4099deb66be745a3b4889c3a2b48237c'
         },
 
         webservices: {

@@ -56407,6 +56407,181 @@ Ext.define('Ext.data.ArrayStore', {
     // Ext.reg('simplestore', Ext.data.SimpleStore);
 });
 
+/**
+ * @author Ed Spencer
+ * @aside guide proxies
+ *
+ * The Rest proxy is a specialization of the {@link Ext.data.proxy.Ajax AjaxProxy} which simply maps the four actions
+ * (create, read, update and destroy) to RESTful HTTP verbs. For example, let's set up a {@link Ext.data.Model Model}
+ * with an inline Rest proxy:
+ *
+ *     Ext.define('User', {
+ *         extend: 'Ext.data.Model',
+ *         config: {
+ *             fields: ['id', 'name', 'email'],
+ *
+ *             proxy: {
+ *                 type: 'rest',
+ *                 url : '/users'
+ *             }
+ *         }
+ *     });
+ *
+ * Now we can create a new User instance and save it via the Rest proxy. Doing this will cause the Proxy to send a POST
+ * request to '/users':
+ *
+ *     var user = Ext.create('User', {name: 'Ed Spencer', email: 'ed@sencha.com'});
+ *
+ *     user.save(); //POST /users
+ *
+ * Let's expand this a little and provide a callback for the {@link Ext.data.Model#save} call to update the Model once
+ * it has been created. We'll assume the creation went successfully and that the server gave this user an ID of 123:
+ *
+ *     user.save({
+ *         success: function(user) {
+ *             user.set('name', 'Khan Noonien Singh');
+ *
+ *             user.save(); //PUT /users/123
+ *         }
+ *     });
+ *
+ * Now that we're no longer creating a new Model instance, the request method is changed to an HTTP PUT, targeting the
+ * relevant url for that user. Now let's delete this user, which will use the DELETE method:
+ *
+ *         user.erase(); //DELETE /users/123
+ *
+ * Finally, when we perform a load of a Model or Store, Rest proxy will use the GET method:
+ *
+ *     //1. Load via Store
+ *
+ *     //the Store automatically picks up the Proxy from the User model
+ *     var store = Ext.create('Ext.data.Store', {
+ *         model: 'User'
+ *     });
+ *
+ *     store.load(); //GET /users
+ *
+ *     //2. Load directly from the Model
+ *
+ *     //GET /users/123
+ *     Ext.ModelManager.getModel('User').load(123, {
+ *         success: function(user) {
+ *             console.log(user.getId()); //outputs 123
+ *         }
+ *     });
+ *
+ * # Url generation
+ *
+ * The Rest proxy is able to automatically generate the urls above based on two configuration options - {@link #appendId} and
+ * {@link #format}. If appendId is true (it is by default) then Rest proxy will automatically append the ID of the Model
+ * instance in question to the configured url, resulting in the '/users/123' that we saw above.
+ *
+ * If the request is not for a specific Model instance (e.g. loading a Store), the url is not appended with an id.
+ * The Rest proxy will automatically insert a '/' before the ID if one is not already present.
+ *
+ *     new Ext.data.proxy.Rest({
+ *         url: '/users',
+ *         appendId: true //default
+ *     });
+ *
+ *     // Collection url: /users
+ *     // Instance url  : /users/123
+ *
+ * The Rest proxy can also optionally append a format string to the end of any generated url:
+ *
+ *     new Ext.data.proxy.Rest({
+ *         url: '/users',
+ *         format: 'json'
+ *     });
+ *
+ *     // Collection url: /users.json
+ *     // Instance url  : /users/123.json
+ *
+ * If further customization is needed, simply implement the {@link #buildUrl} method and add your custom generated url
+ * onto the {@link Ext.data.Request Request} object that is passed to buildUrl. See [Rest proxy's implementation][1] for
+ * an example of how to achieve this.
+ *
+ * Note that Rest proxy inherits from {@link Ext.data.proxy.Ajax AjaxProxy}, which already injects all of the sorter,
+ * filter, group and paging options into the generated url. See the {@link Ext.data.proxy.Ajax AjaxProxy docs} for more
+ * details.
+ *
+ * [1]: source/Rest.html#Ext-data-proxy-Rest-method-buildUrl
+ */
+Ext.define('Ext.data.proxy.Rest', {
+    extend:  Ext.data.proxy.Ajax ,
+    alternateClassName: 'Ext.data.RestProxy',
+    alias : 'proxy.rest',
+
+    config: {
+        /**
+         * @cfg {Boolean} appendId
+         * `true` to automatically append the ID of a Model instance when performing a request based on that single instance.
+         * See Rest proxy intro docs for more details.
+         */
+        appendId: true,
+
+        /**
+         * @cfg {String} format
+         * Optional data format to send to the server when making any request (e.g. 'json'). See the Rest proxy intro docs
+         * for full details.
+         */
+        format: null,
+
+        /**
+         * @cfg {Boolean} batchActions
+         * `true` to batch actions of a particular type when synchronizing the store.
+         */
+        batchActions: false,
+
+        actionMethods: {
+            create : 'POST',
+            read   : 'GET',
+            update : 'PUT',
+            destroy: 'DELETE'
+        }
+    },
+
+    /**
+     * Specialized version of `buildUrl` that incorporates the {@link #appendId} and {@link #format} options into the
+     * generated url. Override this to provide further customizations, but remember to call the superclass `buildUrl` so
+     * that additional parameters like the cache buster string are appended.
+     * @param {Object} request
+     * @return {Object}
+     */
+    buildUrl: function(request) {
+        var me        = this,
+            operation = request.getOperation(),
+            records   = operation.getRecords() || [],
+            record    = records[0],
+            model     = me.getModel(),
+            idProperty= model.getIdProperty(),
+            format    = me.getFormat(),
+            url       = me.getUrl(request),
+            params    = request.getParams() || {},
+            id        = (record && !record.phantom) ? record.getId() : params[idProperty];
+
+        if (me.getAppendId() && id) {
+            if (!url.match(/\/$/)) {
+                url += '/';
+            }
+            url += id;
+            delete params[idProperty];
+        }
+
+        if (format) {
+            if (!url.match(/\.$/)) {
+                url += '.';
+            }
+
+            url += format;
+        }
+
+        request.setUrl(url);
+
+        return me.callParent([request]);
+    }
+});
+
 // Using @mixins to include all members of Ext.event.Touch
 // into here to keep documentation simpler
 /**
@@ -60995,6 +61170,1163 @@ Ext.define('Ext.log.writer.Console', {
 });
 
 /**
+ * This component is used in {@link Ext.navigation.View} to control animations in the toolbar. You should never need to
+ * interact with the component directly, unless you are subclassing it.
+ * @private
+ * @author Robert Dougan <rob@sencha.com>
+ */
+Ext.define('Ext.navigation.Bar', {
+    extend:  Ext.TitleBar ,
+
+               
+                     
+                    
+      
+
+    // @private
+    isToolbar: true,
+
+    config: {
+        /**
+         * @cfg
+         * @inheritdoc
+         */
+        baseCls: Ext.baseCSSPrefix + 'toolbar',
+
+        /**
+         * @cfg
+         * @inheritdoc
+         */
+        cls: Ext.baseCSSPrefix + 'navigation-bar',
+
+        /**
+         * @cfg {String} ui
+         * Style options for Toolbar. Either 'light' or 'dark'.
+         * @accessor
+         */
+        ui: 'dark',
+
+        /**
+         * @cfg {String} title
+         * The title of the toolbar. You should NEVER set this, it is used internally. You set the title of the
+         * navigation bar by giving a navigation views children a title configuration.
+         * @private
+         * @accessor
+         */
+        title: null,
+
+        /**
+         * @cfg
+         * @hide
+         * @accessor
+         */
+        defaultType: 'button',
+
+        /**
+         * @cfg
+         * @ignore
+         * @accessor
+         */
+        layout: {
+            type: 'hbox'
+        },
+
+        /**
+         * @cfg {Array/Object} items The child items to add to this NavigationBar. The {@link #cfg-defaultType} of
+         * a NavigationBar is {@link Ext.Button}, so you do not need to specify an `xtype` if you are adding
+         * buttons.
+         *
+         * You can also give items a `align` configuration which will align the item to the `left` or `right` of
+         * the NavigationBar.
+         * @hide
+         * @accessor
+         */
+
+        /**
+         * @cfg {String} defaultBackButtonText
+         * The text to be displayed on the back button if:
+         * a) The previous view does not have a title
+         * b) The {@link #useTitleForBackButtonText} configuration is true.
+         * @private
+         * @accessor
+         */
+        defaultBackButtonText: 'Back',
+
+        /**
+         * @cfg {Object} animation
+         * @private
+         * @accessor
+         */
+        animation: {
+            duration: 300
+        },
+
+        /**
+         * @cfg {Boolean} useTitleForBackButtonText
+         * Set to false if you always want to display the {@link #defaultBackButtonText} as the text
+         * on the back button. True if you want to use the previous views title.
+         * @private
+         * @accessor
+         */
+        useTitleForBackButtonText: null,
+
+        /**
+         * @cfg {Ext.navigation.View} view A reference to the navigation view this bar is linked to.
+         * @private
+         * @accessor
+         */
+        view: null,
+
+        /**
+         * @cfg {Boolean} androidAnimation Optionally enable CSS transforms on Android 2
+         * for NavigationBar animations.  Note that this may cause flickering if the
+         * NavigationBar is hidden.
+         * @accessor
+         */
+        android2Transforms: false,
+
+        /**
+         * @cfg {Ext.Button/Object} backButton The configuration for the back button
+         * @private
+         * @accessor
+         */
+        backButton: {
+            align: 'left',
+            ui: 'back',
+            hidden: true
+        }
+    },
+
+    platformConfig: [{
+        theme: ['Blackberry'],
+        animation: false
+    }],
+
+    /**
+     * @event back
+     * Fires when the back button was tapped.
+     * @param {Ext.navigation.Bar} this This bar
+     */
+
+    constructor: function(config) {
+        config = config || {};
+
+        if (!config.items) {
+            config.items = [];
+        }
+
+        this.backButtonStack = [];
+        this.activeAnimations = [];
+
+        this.callParent([config]);
+    },
+
+    /**
+     * @private
+     */
+    applyBackButton: function(config) {
+        return Ext.factory(config, Ext.Button, this.getBackButton());
+    },
+
+    /**
+     * @private
+     */
+    updateBackButton: function(newBackButton, oldBackButton) {
+        if (oldBackButton) {
+            this.remove(oldBackButton);
+        }
+
+        if (newBackButton) {
+            this.add(newBackButton);
+
+            newBackButton.on({
+                scope: this,
+                tap: this.onBackButtonTap
+            });
+        }
+    },
+
+    onBackButtonTap: function() {
+        this.fireEvent('back', this);
+    },
+
+    /**
+     * @private
+     */
+    updateView: function(newView) {
+        var me = this,
+            backButton = me.getBackButton(),
+            innerItems, i, backButtonText, item, title, titleText;
+
+        me.getItems();
+
+        if (newView) {
+            //update the back button stack with the current inner items of the view
+            innerItems = newView.getInnerItems();
+            for (i = 0; i < innerItems.length; i++) {
+                item = innerItems[i];
+                title = (item.getTitle) ? item.getTitle() : item.config.title;
+
+                me.backButtonStack.push(title || '&nbsp;');
+            }
+
+            titleText = me.getTitleText();
+
+            if (titleText === undefined) {
+                titleText = '';
+            }
+
+            me.setTitle(titleText);
+
+            backButtonText = me.getBackButtonText();
+            if (backButtonText) {
+                backButton.setText(backButtonText);
+                backButton.show();
+            }
+        }
+    },
+
+    /**
+     * @private
+     */
+    onViewAdd: function(view, item) {
+        var me = this,
+            backButtonStack = me.backButtonStack,
+            hasPrevious, title;
+
+        me.endAnimation();
+
+        title = (item.getTitle) ? item.getTitle() : item.config.title;
+
+        backButtonStack.push(title || '&nbsp;');
+        hasPrevious = backButtonStack.length > 1;
+
+        me.doChangeView(view, hasPrevious, false);
+    },
+
+    /**
+     * @private
+     */
+    onViewRemove: function(view) {
+        var me = this,
+            backButtonStack = me.backButtonStack,
+            hasPrevious;
+
+        me.endAnimation();
+        backButtonStack.pop();
+        hasPrevious = backButtonStack.length > 1;
+
+        me.doChangeView(view, hasPrevious, true);
+    },
+
+    /**
+     * @private
+     */
+    doChangeView: function(view, hasPrevious, reverse) {
+        var me = this,
+            leftBox = me.leftBox,
+            leftBoxElement = leftBox.element,
+            titleComponent = me.titleComponent,
+            titleElement = titleComponent.element,
+            backButton = me.getBackButton(),
+            titleText = me.getTitleText(),
+            backButtonText = me.getBackButtonText(),
+            animation = me.getAnimation() && view.getLayout().getAnimation(),
+            animated = animation && animation.isAnimation && view.isPainted(),
+            properties, leftGhost, titleGhost, leftProps, titleProps;
+
+        if (animated) {
+            leftGhost = me.createProxy(leftBox.element);
+            leftBoxElement.setStyle('opacity', '0');
+            backButton.setText(backButtonText);
+            backButton[hasPrevious ? 'show' : 'hide']();
+
+            titleGhost = me.createProxy(titleComponent.element.getParent());
+            titleElement.setStyle('opacity', '0');
+            me.setTitle(titleText);
+
+            properties = me.measureView(leftGhost, titleGhost, reverse);
+            leftProps = properties.left;
+            titleProps = properties.title;
+
+            me.isAnimating = true;
+            me.animate(leftBoxElement, leftProps.element);
+            me.animate(titleElement, titleProps.element, function() {
+                titleElement.setLeft(properties.titleLeft);
+                me.isAnimating = false;
+                me.refreshTitlePosition();
+            });
+
+            if (Ext.browser.is.AndroidStock2 && !this.getAndroid2Transforms()) {
+                leftGhost.ghost.destroy();
+                titleGhost.ghost.destroy();
+            }
+            else {
+                me.animate(leftGhost.ghost, leftProps.ghost);
+                me.animate(titleGhost.ghost, titleProps.ghost, function() {
+                    leftGhost.ghost.destroy();
+                    titleGhost.ghost.destroy();
+                });
+            }
+        }
+        else {
+            if (hasPrevious) {
+                backButton.setText(backButtonText);
+                backButton.show();
+            }
+            else {
+                backButton.hide();
+            }
+            me.setTitle(titleText);
+        }
+    },
+
+    /**
+     * Calculates and returns the position values needed for the back button when you are pushing a title.
+     * @private
+     */
+    measureView: function(oldLeft, oldTitle, reverse) {
+        var me = this,
+            barElement = me.element,
+            newLeftElement = me.leftBox.element,
+            titleElement = me.titleComponent.element,
+            minOffset = Math.min(barElement.getWidth() / 3, 200),
+            newLeftWidth = newLeftElement.getWidth(),
+            barX = barElement.getX(),
+            barWidth = barElement.getWidth(),
+            titleX = titleElement.getX(),
+            titleLeft = titleElement.getLeft(),
+            titleWidth = titleElement.getWidth(),
+            oldLeftX = oldLeft.x,
+            oldLeftWidth = oldLeft.width,
+            oldLeftLeft = oldLeft.left,
+            useLeft = Ext.browser.is.AndroidStock2 && !this.getAndroid2Transforms(),
+            newOffset, oldOffset, leftAnims, titleAnims, omega, theta;
+
+        theta = barX - oldLeftX - oldLeftWidth;
+        if (reverse) {
+            newOffset = theta;
+            oldOffset = Math.min(titleX - oldLeftWidth, minOffset);
+        }
+        else {
+            oldOffset = theta;
+            newOffset = Math.min(titleX - barX, minOffset);
+        }
+
+        if (useLeft) {
+            leftAnims = {
+                element: {
+                    from: {
+                        left: newOffset,
+                        opacity: 1
+                    },
+                    to: {
+                        left: 0,
+                        opacity: 1
+                    }
+                }
+            };
+        }
+        else {
+            leftAnims = {
+                element: {
+                    from: {
+                        transform: {
+                            translateX: newOffset
+                        },
+                        opacity: 0
+                    },
+                    to: {
+                        transform: {
+                            translateX: 0
+                        },
+                        opacity: 1
+                    }
+                },
+                ghost: {
+                    to: {
+                        transform: {
+                            translateX: oldOffset
+                        },
+                        opacity: 0
+                    }
+                }
+            };
+        }
+
+        theta = barX - titleX + newLeftWidth;
+        if ((oldLeftLeft + titleWidth) > titleX) {
+            omega = barX - titleX - titleWidth;
+        }
+
+        if (reverse) {
+            titleElement.setLeft(0);
+
+            oldOffset = barX + barWidth - titleX - titleWidth;
+
+            if (omega !== undefined) {
+                newOffset = omega;
+            }
+            else {
+                newOffset = theta;
+            }
+        }
+        else {
+            newOffset = barX + barWidth - titleX - titleWidth;
+
+            if (omega !== undefined) {
+                oldOffset = omega;
+            }
+            else {
+                oldOffset = theta;
+            }
+
+            newOffset = Math.max(titleLeft, newOffset);
+        }
+
+        if (useLeft) {
+            titleAnims = {
+                element: {
+                    from: {
+                        left: newOffset,
+                        opacity: 1
+                    },
+                    to: {
+                        left: titleLeft,
+                        opacity: 1
+                    }
+                }
+            };
+        }
+        else {
+            titleAnims = {
+                element: {
+                    from: {
+                        transform: {
+                            translateX: newOffset
+                        },
+                        opacity: 0
+                    },
+                    to: {
+                        transform: {
+                            translateX: titleLeft
+                        },
+                        opacity: 1
+                    }
+                },
+                ghost: {
+                    to: {
+                        transform: {
+                            translateX: oldOffset
+                        },
+                        opacity: 0
+                    }
+                }
+            };
+        }
+
+        return {
+            left: leftAnims,
+            title: titleAnims,
+            titleLeft: titleLeft
+        };
+    },
+
+    /**
+     * Helper method used to animate elements.
+     * You pass it an element, objects for the from and to positions an option onEnd callback called when the animation is over.
+     * Normally this method is passed configurations returned from the methods such as #measureTitle(true) etc.
+     * It is called from the #pushLeftBoxAnimated, #pushTitleAnimated, #popBackButtonAnimated and #popTitleAnimated
+     * methods.
+     *
+     * If the current device is Android, it will use top/left to animate.
+     * If it is anything else, it will use transform.
+     * @private
+     */
+    animate: function(element, config, callback) {
+        var me = this,
+            animation;
+
+        //reset the left of the element
+        element.setLeft(0);
+
+        config = Ext.apply(config, {
+            element: element,
+            easing: 'ease-in-out',
+            duration: me.getAnimation().duration || 250,
+            preserveEndState: true
+        });
+
+        animation = new Ext.fx.Animation(config);
+        animation.on('animationend', function() {
+            if (callback) {
+                callback.call(me);
+            }
+        }, me);
+
+        Ext.Animator.run(animation);
+        me.activeAnimations.push(animation);
+    },
+
+    endAnimation: function() {
+        var activeAnimations = this.activeAnimations,
+            animation, i, ln;
+
+        if (activeAnimations) {
+            ln = activeAnimations.length;
+            for (i = 0; i < ln; i++) {
+                animation = activeAnimations[i];
+                if (animation.isAnimating) {
+                    animation.stopAnimation();
+                }
+                else {
+                    animation.destroy();
+                }
+            }
+            this.activeAnimations = [];
+        }
+    },
+
+    refreshTitlePosition: function() {
+        if (!this.isAnimating) {
+            this.callParent();
+        }
+    },
+
+    /**
+     * Returns the text needed for the current back button at anytime.
+     * @private
+     */
+    getBackButtonText: function() {
+        var text = this.backButtonStack[this.backButtonStack.length - 2],
+            useTitleForBackButtonText = this.getUseTitleForBackButtonText();
+
+        if (!useTitleForBackButtonText) {
+            if (text) {
+                text = this.getDefaultBackButtonText();
+            }
+        }
+
+        return text;
+    },
+
+    /**
+     * Returns the text needed for the current title at anytime.
+     * @private
+     */
+    getTitleText: function() {
+        return this.backButtonStack[this.backButtonStack.length - 1];
+    },
+
+    /**
+     * Handles removing back button stacks from this bar
+     * @private
+     */
+    beforePop: function(count) {
+        count--;
+        for (var i = 0; i < count; i++) {
+            this.backButtonStack.pop();
+        }
+    },
+
+    /**
+     * We override the hidden method because we don't want to remove it from the view using display:none. Instead we just position it off
+     * the screen, much like the navigation bar proxy. This means that all animations, pushing, popping etc. all still work when if you hide/show
+     * this bar at any time.
+     * @private
+     */
+    doSetHidden: function(hidden) {
+        if (!hidden) {
+            this.element.setStyle({
+                position: 'relative',
+                top: 'auto',
+                left: 'auto',
+                width: 'auto'
+            });
+        } else {
+            this.element.setStyle({
+                position: 'absolute',
+                top: '-1000px',
+                left: '-1000px',
+                width: this.element.getWidth() + 'px'
+            });
+        }
+    },
+
+    /**
+     * Creates a proxy element of the passed element, and positions it in the same position, using absolute positioning.
+     * The createNavigationBarProxy method uses this to create proxies of the backButton and the title elements.
+     * @private
+     */
+    createProxy: function(element) {
+        var ghost, x, y, left, width;
+
+        ghost = element.dom.cloneNode(true);
+        ghost.id = element.id + '-proxy';
+
+        //insert it into the toolbar
+        element.getParent().dom.appendChild(ghost);
+
+        //set the x/y
+        ghost = Ext.get(ghost);
+        x = element.getX();
+        y = element.getY();
+        left = element.getLeft();
+        width = element.getWidth();
+        ghost.setStyle('position', 'absolute');
+        ghost.setX(x);
+        ghost.setY(y);
+        ghost.setHeight(element.getHeight());
+        ghost.setWidth(width);
+
+        return {
+            x: x,
+            y: y,
+            left: left,
+            width: width,
+            ghost: ghost
+        };
+    }
+});
+
+/**
+ * @author Robert Dougan <rob@sencha.com>
+ *
+ * NavigationView is basically a {@link Ext.Container} with a {@link Ext.layout.Card card} layout, so only one view
+ * can be visible at a time. However, NavigationView also adds extra functionality on top of this to allow
+ * you to `push` and `pop` views at any time. When you do this, your NavigationView will automatically animate
+ * between your current active view, and the new view you want to `push`, or the previous view you want to `pop`.
+ *
+ * Using the NavigationView is very simple. Here is a basic example of it in action:
+ *
+ *     @example
+ *     var view = Ext.create('Ext.NavigationView', {
+ *         fullscreen: true,
+ *
+ *         items: [{
+ *             title: 'First',
+ *             items: [{
+ *                 xtype: 'button',
+ *                 text: 'Push a new view!',
+ *                 handler: function() {
+ *                     // use the push() method to push another view. It works much like
+ *                     // add() or setActiveItem(). it accepts a view instance, or you can give it
+ *                     // a view config.
+ *                     view.push({
+ *                         title: 'Second',
+ *                         html: 'Second view!'
+ *                     });
+ *                 }
+ *             }]
+ *         }]
+ *     });
+ *
+ * Now, here comes the fun part: you can push any view/item into the NavigationView, at any time, and it will
+ * automatically handle the animations between the two views, including adding a back button (if necessary)
+ * and showing the new title.
+ *
+ *     view.push({
+ *         title: 'A new view',
+ *         html: 'Some new content'
+ *     });
+ *
+ * As you can see, it is as simple as calling the {@link #method-push} method, with a new view (instance or object). Done.
+ *
+ * You can also `pop` a view at any time. This will remove the top-most view from the NavigationView, and animate back
+ * to the previous view. You can do this using the {@link #method-pop} method (which requires no arguments).
+ *
+ *     view.pop();
+ *
+ *  Applications that need compatibility with ##Older Android## devices will want to see the {@link #layout} config for details on
+ *  disabling navigation view animations as these devices have poor animation support and performance.
+ *
+ * @aside guide navigation_view
+ */
+Ext.define('Ext.navigation.View', {
+    extend:  Ext.Container ,
+    alternateClassName: 'Ext.NavigationView',
+    xtype: 'navigationview',
+                                     
+
+    config: {
+        /**
+         * @cfg
+         * @inheritdoc
+         */
+        baseCls: Ext.baseCSSPrefix + 'navigationview',
+
+        /**
+         * @cfg {Boolean/Object} navigationBar
+         * The NavigationBar used in this navigation view. It defaults to be docked to the top.
+         *
+         * You can just pass in a normal object if you want to customize the NavigationBar. For example:
+         *
+         *     navigationBar: {
+         *         ui: 'dark',
+         *         docked: 'bottom'
+         *     }
+         *
+         * You **cannot** specify a *title* property in this configuration. The title of the navigationBar is taken
+         * from the configuration of this views children:
+         *
+         *     view.push({
+         *         title: 'This views title which will be shown in the navigation bar',
+         *         html: 'Some HTML'
+         *     });
+         *
+         * @accessor
+         */
+        navigationBar: {
+            docked: 'top'
+        },
+
+        /**
+         * @cfg {String} defaultBackButtonText
+         * The text to be displayed on the back button if:
+         *
+         * - The previous view does not have a title.
+         * - The {@link #useTitleForBackButtonText} configuration is `true`.
+         * @accessor
+         */
+        defaultBackButtonText: 'Back',
+
+        /**
+         * @cfg {Boolean} useTitleForBackButtonText
+         * Set to `false` if you always want to display the {@link #defaultBackButtonText} as the text
+         * on the back button. `true` if you want to use the previous views title.
+         * @accessor
+         */
+        useTitleForBackButtonText: false,
+
+        /**
+         * @cfg {Array/Object} items The child items to add to this NavigationView. This is usually an array of Component
+         * configurations or instances, for example:
+         *
+         *     Ext.create('Ext.Container', {
+         *         items: [
+         *             {
+         *                 xtype: 'panel',
+         *                 title: 'My title',
+         *                 html: 'This is an item'
+         *             }
+         *         ]
+         *     });
+         *
+         * If you want a title to be displayed in the {@link #navigationBar}, you must specify a `title` configuration in your
+         * view, like above.
+         *
+         * __Note:__ Only one view will be visible at a time. If you want to change to another view, use the {@link #method-push} or
+         * {@link #setActiveItem} methods.
+         * @accessor
+         */
+
+        /**
+         * @cfg {Object}
+         * Layout used in this navigation view, type must be set to 'card'.
+         * **Android NOTE:** Older Android devices have poor animation performance. It is recommended to set the animation to null, for example:
+         *
+         *      layout: {
+         *          type: 'card',
+         *          animation: null
+         *      }
+         *
+         * @accessor
+         */
+        layout: {
+            type: 'card',
+            animation: {
+                duration: 300,
+                easing: 'ease-out',
+                type: 'slide',
+                direction: 'left'
+            }
+        }
+    },
+
+    /**
+     * @event push
+     * Fires when a view is pushed into this navigation view
+     * @param {Ext.navigation.View} this The component instance
+     * @param {Mixed} view The view that has been pushed
+     */
+
+    /**
+     * @event pop
+     * Fires when a view is popped from this navigation view
+     * @param {Ext.navigation.View} this The component instance
+     * @param {Mixed} view The view that has been popped
+     */
+
+    /**
+     * @event back
+     * Fires when the back button in the navigation view was tapped.
+     * @param {Ext.navigation.View} this The component instance\
+     */
+
+    platformConfig: [{
+        theme: ['Blackberry'],
+        navigationBar: {
+            splitNavigation: true
+        }
+    }],
+
+    // @private
+    initialize: function() {
+        var me     = this,
+            navBar = me.getNavigationBar();
+
+        //add a listener onto the back button in the navigationbar
+        if (navBar) {
+            navBar.on({
+                back: me.onBackButtonTap,
+                scope: me
+            });
+
+            me.relayEvents(navBar, 'rightbuttontap');
+
+            me.relayEvents(me, {
+                add: 'push',
+                remove: 'pop'
+            });
+        }
+
+        var layout = me.getLayout();
+        if (layout && !layout.isCard) {
+            Ext.Logger.error('The base layout for a NavigationView must always be a Card Layout');
+        }
+    },
+
+    /**
+     * @private
+     */
+    applyLayout: function(config) {
+        config = config || {};
+
+        return config;
+    },
+
+    /**
+     * @private
+     * Called when the user taps on the back button
+     */
+    onBackButtonTap: function() {
+        this.pop();
+        this.fireEvent('back', this);
+    },
+
+    /**
+     * Pushes a new view into this navigation view using the default animation that this view has.
+     * @param {Object} view The view to push.
+     * @return {Ext.Component} The new item you just pushed.
+     */
+    push: function(view) {
+        return this.add(view);
+    },
+
+    /**
+     * Removes the current active view from the stack and sets the previous view using the default animation
+     * of this view. You can also pass a {@link Ext.ComponentQuery} selector to target what inner item to pop to.
+     * @param {Number/String/Object} count If a Number, the number of views you want to pop. If a String, the pops to a matching
+     * component query. If an Object, the pops to a matching view instance.
+     * @return {Ext.Component} The new active item
+     */
+    pop: function(count) {
+        if (this.beforePop(count)) {
+            return this.doPop();
+        }
+    },
+
+    /**
+     * @private
+     * Calculates whether it needs to remove any items from the stack when you are popping more than 1
+     * item. If it does, it removes those views from the stack and returns `true`.
+     * @return {Boolean} `true` if it has removed views.
+     */
+    beforePop: function(count) {
+        var me = this,
+            innerItems = me.getInnerItems();
+
+        if (Ext.isString(count) || Ext.isObject(count)) {
+            var last = innerItems.length - 1,
+                i;
+
+            for (i = last; i >= 0; i--) {
+                if ((Ext.isString(count) && Ext.ComponentQuery.is(innerItems[i], count)) || (Ext.isObject(count) && count == innerItems[i])) {
+                    count = last - i;
+                    break;
+                }
+            }
+
+            if (!Ext.isNumber(count)) {
+                return false;
+            }
+        }
+
+        var ln = innerItems.length,
+            toRemove;
+
+        //default to 1 pop
+        if (!Ext.isNumber(count) || count < 1) {
+            count = 1;
+        }
+
+        //check if we are trying to remove more items than we have
+        count = Math.min(count, ln - 1);
+
+        if (count) {
+            //we need to reset the backButtonStack in the navigation bar
+            me.getNavigationBar().beforePop(count);
+
+            //get the items we need to remove from the view and remove theme
+            toRemove = innerItems.splice(-count, count - 1);
+            for (i = 0; i < toRemove.length; i++) {
+                this.remove(toRemove[i]);
+            }
+
+            return true;
+        }
+
+        return false;
+    },
+
+    /**
+     * @private
+     */
+    doPop: function() {
+        var me = this,
+            innerItems = this.getInnerItems();
+
+        //set the new active item to be the new last item of the stack
+        me.remove(innerItems[innerItems.length - 1]);
+
+        // Hide the backButton
+        if (innerItems.length < 3 && this.$backButton) {
+            this.$backButton.hide();
+        }
+
+        // Update the title container
+        if (this.$titleContainer) {
+            if (!this.$titleContainer.setTitle) {
+                Ext.Logger.error('You have selected to display a title in a component that does not \
+                    support titles in NavigationView. Please remove the `title` configuration from your \
+                    NavigationView item, or change it to a component that has a `setTitle` method.');
+            }
+
+            var item = innerItems[innerItems.length - 2];
+            this.$titleContainer.setTitle((item.getTitle) ? item.getTitle() : item.config.title);
+        }
+
+        return this.getActiveItem();
+    },
+
+    /**
+     * Returns the previous item, if one exists.
+     * @return {Mixed} The previous view
+     */
+    getPreviousItem: function() {
+        var innerItems = this.getInnerItems();
+        return innerItems[innerItems.length - 2];
+    },
+
+    /**
+     * Updates the backbutton text accordingly in the {@link #navigationBar}
+     * @private
+     */
+    updateUseTitleForBackButtonText: function(useTitleForBackButtonText) {
+        var navigationBar = this.getNavigationBar();
+        if (navigationBar) {
+            navigationBar.setUseTitleForBackButtonText(useTitleForBackButtonText);
+        }
+    },
+
+    /**
+     * Updates the backbutton text accordingly in the {@link #navigationBar}
+     * @private
+     */
+    updateDefaultBackButtonText: function(defaultBackButtonText) {
+        var navigationBar = this.getNavigationBar();
+        if (navigationBar) {
+            navigationBar.setDefaultBackButtonText(defaultBackButtonText);
+        }
+    },
+
+    // @private
+    applyNavigationBar: function(config) {
+        if (!config) {
+            config = {
+                hidden: true,
+                docked: 'top'
+            };
+        }
+
+        if (config.title) {
+            delete config.title;
+            Ext.Logger.warn("Ext.navigation.View: The 'navigationBar' configuration does not accept a 'title' property. You " +
+                            "set the title of the navigationBar by giving this navigation view's children a 'title' property.");
+        }
+
+        config.view = this;
+        config.useTitleForBackButtonText = this.getUseTitleForBackButtonText();
+
+        if (config.splitNavigation) {
+            this.$titleContainer = this.add({
+                docked: 'top',
+                xtype: 'titlebar',
+                ui: 'light',
+                title: this.$currentTitle || ''
+            });
+
+            var containerConfig = (config.splitNavigation === true) ? {} : config.splitNavigation;
+
+            this.$backButtonContainer = this.add(Ext.apply({
+                xtype: 'toolbar',
+                docked: 'bottom'
+            }, containerConfig));
+
+            this.$backButton = this.$backButtonContainer.add({
+                xtype: 'button',
+                text: 'Back',
+                hidden: true,
+                ui: 'back'
+            });
+
+            this.$backButton.on({
+                scope: this,
+                tap: this.onBackButtonTap
+            });
+
+            config = {
+                hidden: true,
+                docked: 'top'
+            };
+        }
+
+        return Ext.factory(config, Ext.navigation.Bar, this.getNavigationBar());
+    },
+
+    // @private
+    updateNavigationBar: function(newNavigationBar, oldNavigationBar) {
+        if (oldNavigationBar) {
+            this.remove(oldNavigationBar, true);
+        }
+
+        if (newNavigationBar) {
+            this.add(newNavigationBar);
+        }
+    },
+
+    /**
+     * @private
+     */
+    applyActiveItem: function(activeItem, currentActiveItem) {
+        var me = this,
+            innerItems = me.getInnerItems();
+
+        // Make sure the items are already initialized
+        me.getItems();
+
+        // If we are not initialzed yet, we should set the active item to the last item in the stack
+        if (!me.initialized) {
+            activeItem = innerItems.length - 1;
+        }
+
+        return this.callParent([activeItem, currentActiveItem]);
+    },
+
+    doResetActiveItem: function(innerIndex) {
+        var me = this,
+            innerItems = me.getInnerItems(),
+            animation = me.getLayout().getAnimation();
+
+        if (innerIndex > 0) {
+            if (animation && animation.isAnimation) {
+                animation.setReverse(true);
+            }
+            me.setActiveItem(innerIndex - 1);
+            me.getNavigationBar().onViewRemove(me, innerItems[innerIndex], innerIndex);
+        }
+    },
+
+    /**
+     * @private
+     */
+    doRemove: function() {
+        var animation = this.getLayout().getAnimation();
+
+        if (animation && animation.isAnimation) {
+            animation.setReverse(false);
+        }
+
+        this.callParent(arguments);
+    },
+
+    /**
+     * @private
+     */
+    onItemAdd: function(item, index) {
+
+        // Check for title configuration
+        if (item && item.getDocked() && item.config.title === true) {
+            this.$titleContainer = item;
+        }
+
+        this.doItemLayoutAdd(item, index);
+
+        var navigaitonBar = this.getInitialConfig().navigationBar;
+
+        if (!this.isItemsInitializing && item.isInnerItem()) {
+            this.setActiveItem(item);
+
+            // Update the navigationBar
+            if (navigaitonBar) {
+                this.getNavigationBar().onViewAdd(this, item, index);
+            }
+
+            // Update the custom backButton
+            if (this.$backButtonContainer) {
+                this.$backButton.show();
+            }
+        }
+
+        if (item && item.isInnerItem()) {
+            // Update the title container title
+            this.updateTitleContainerTitle((item.getTitle) ? item.getTitle() : item.config.title);
+        }
+
+        if (this.initialized) {
+            this.fireEvent('add', this, item, index);
+        }
+    },
+
+    /**
+     * @private
+     * Updates the title of the titleContainer, if it exists
+     */
+    updateTitleContainerTitle: function(title) {
+        if (this.$titleContainer) {
+            if (!this.$titleContainer.setTitle) {
+                Ext.Logger.error('You have selected to display a title in a component that does not \
+                    support titles in NavigationView. Please remove the `title` configuration from your \
+                    NavigationView item, or change it to a component that has a `setTitle` method.');
+            }
+
+            this.$titleContainer.setTitle(title);
+        }
+        else {
+            this.$currentTitle = title;
+        }
+    },
+
+    /**
+     * Resets the view by removing all items between the first and last item.
+     * @return {Ext.Component} The view that is now active
+     */
+    reset: function() {
+        return this.pop(this.getInnerItems().length);
+    }
+});
+
+/**
  * Used in the {@link Ext.tab.Bar} component. This shouldn't be used directly, instead use
  * {@link Ext.tab.Bar} or {@link Ext.tab.Panel}.
  * @private
@@ -63472,6 +64804,251 @@ Ext.define('Ext.viewport.Viewport', {
  */
 
 /**
+ * Geolocation util.
+ */
+Ext.define('Denkmap.util.Geolocation', {
+    extend:  Ext.util.Geolocation ,
+
+    config: {
+        available: false,
+        autoUpdate: false,
+        timeout: 20000,
+
+        listeners: {
+            locationupdate: function(geo, eOpts) {
+                geo.setAvailable(true);
+            },
+            locationerror: function(geo, bTimeout, bPermissionDenied, bLocationUnavailable, message, eOpts) {
+                geo.setAvailable(false);
+            }
+        }
+    }
+});
+
+/**
+ * Configuration for denkmap application
+ */
+Ext.define('Denkmap.util.Config', {
+    singleton: true,
+
+    config: {
+        /**
+         * @cfg {String} version Current version number of application
+         **/
+        version: '1.0.{BUILD_NR}',
+
+        leafletMap: {
+            zoom: 15,
+            getTileLayerUrl: function(isRetina) {
+                if(isRetina) {
+                    return 'http://{s}.tile.cloudmade.com/{apikey}/{styleId}@2x/256/{z}/{x}/{y}.png';
+                } else {
+                    return 'http://{s}.tile.cloudmade.com/{apikey}/{styleId}/256/{z}/{x}/{y}.png';
+                }
+            },
+            tileLayerAttribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a>',
+            apiKey: '14f1a83f16604a708a4876a956f9dd35',
+            styleId: 997
+        },
+
+        webservices: {
+            monument: {
+                getUrl: function(latitude, longitude) {
+                    return './nearby/' + latitude + ',' + longitude;
+                },
+                radius: 1000,
+                limit: 25
+            }
+        },
+
+        /**
+         * @cfg {Object} zIndex zIndex for components
+         * @cfg {Number} [zIndex.overlayLeafletMap=1500] (required) zIndex for panel to overlay leaflet map components
+         */
+        zIndex: {
+            overlayLeafletMap: 1500
+        }
+    },
+
+    /**
+     * @private
+     * initializes the configuration
+     */
+    constructor: function(config) {
+        this.initConfig(config);
+        return this;
+    }
+});
+
+/**
+ * Handle object types
+ */
+Ext.define('Denkmap.util.ObjectType', {
+
+    config: {
+        /**
+         * @cfg {object} default style of object styles
+         **/
+        defaultStyle: {
+            radius: 11,
+            fillColor: "#ff7800",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        },
+
+        /**
+         * @cfg {object} All available object types
+         **/
+        objectTypes: {
+            bruecke: {
+                regex: new RegExp("Brücke", "gi"),
+                style: {
+                    fillColor: "#CC9933"
+                }
+            },
+            bauernhaus: {
+                regex: new RegExp("Bauernh", "gi"),
+                style: {
+                    fillColor: "#996633"
+                }
+            },
+            schulhaus: {
+                regex: new RegExp("(Schul|ETH|Uni|Konservatorium|Institut|Klinik)", "gi"),
+                style: {
+                    fillColor: "#CCFF66"
+                }
+            },
+            bahnhof: {
+                regex: new RegExp("Bahn", "gi"),
+                style: {
+                    fillColor: "#FF0000"
+                }
+            },
+            schloss: {
+                regex: new RegExp("(Schloss|Burg)", "gi"),
+                style: {
+                    fillColor: "#00CCFF"
+                }
+            },
+            villa: {
+                regex: new RegExp("Villa", "gi"),
+                style: {
+                    fillColor: "#006600"
+                }
+            },
+            kirche: {
+                regex: new RegExp("(Kirch|Münster|Synagoge)", "gi"),
+                style: {
+                    fillColor: "#FF00FF"
+                }
+            },
+            garten: {
+                regex: new RegExp("Garten", "gi"),
+                style: {
+                    fillColor: "#66CC66"
+                }
+            },
+            amt: {
+                regex: new RegExp("(Amt|Ämt|Verwaltung|Kanton|Schweiz|Bezirk)", "gi"),
+                style: {
+                    fillColor: "#EAA400"
+                }
+            },
+            kultur: {
+                regex: new RegExp("(Museum|Theater|Tonhalle|Kultur)", "gi"),
+                style: {
+                    fillColor: "#CB59E8"
+                }
+            },
+            hotel: {
+                regex: new RegExp("(Hotel)", "gi"),
+                style: {
+                    fillColor: "#FF0099"
+                }
+            },
+            haus: {
+                regex: new RegExp("(Haus|Häuser|Heim|Altbau|Neubau|Bau|Palais|Herrschaft|Zier)", "gi"),
+                style: {
+                    fillColor: "#669999"
+                }
+            }
+        }
+    },
+
+    /**
+     * @private
+     * initializes the configuration
+     */
+    constructor: function(config) {
+        this.initConfig(config);
+        return this;
+    },
+
+
+    /**
+     * @public
+     * Return the styling for a requested monument
+     */
+    getStyleForMonument: function(monument) {
+        var monumentType,
+            index,
+            style = {},
+            types = [monument.baugruppe, monument.objtext];
+
+        for (index = 0; index < types.length; ++index) {
+            monumentType = types[index];
+            if (!monumentType) {
+                continue;
+            }
+            return this._getStyleForMonumentType(monumentType);
+        }
+        Ext.apply(style, this.getDefaultStyle());
+        return style;
+    },
+
+    /**
+     * @private
+     * Returns the style for a monument type or returns a default style
+     */
+    _getStyleForMonumentType: function(monumentType) {
+        var objectType,
+            objectTypeName,
+            style = {},
+            objectTypes = this.getObjectTypes();
+
+        Ext.apply(style, this.getDefaultStyle());
+
+        for (objectTypeName in objectTypes) {
+            objectType = objectTypes[objectTypeName];
+            if (monumentType.match(objectType.regex)) {
+                Ext.apply(style, objectType.style);
+                return style;
+            }
+        }
+        return style;
+    }
+
+});
+
+/**
+ * Model for a monument
+ */
+Ext.define('Denkmap.model.Monument', {
+    extend:  Ext.data.Model ,
+    config: {
+        idProperty: '_id',
+
+        fields: [
+            { name: '_id', type: 'auto' },
+            { name: 'geometry', type: 'auto' },
+            { name: 'properties', type: 'auto' }
+        ]
+    }
+});
+
+/**
  * Main container for about tab.
  */
 Ext.define('Denkmap.view.about.Container', {
@@ -63497,10 +65074,30 @@ Ext.define('Denkmap.view.about.Container', {
             },
             {
                 html:   '<div class="about-content">' +
-                    '<div class="logo">' +
-                    '<img src="./resources/images/denkmap-logo.png" />' +
-                    '</div>' +
-                    '</div>'
+                            '<div class="logo">' +
+                                '<img src="./resources/images/denkmap-logo.png" />' +
+                            '</div>' +
+                            '<div class="introduction">' +
+                                '<p>This project was started at the <a href="http://opendata.ch/projects/open-data-zuerich-hacknights/">Zurich Hacknights</a> ' +
+                                'organised by <a href="http://www.stadt-zuerich.ch/opendata">Open Data Zürich</a>.</p>' +
+                            '</div>' +
+                            '<dl class="denkmap-definitionlist">' +
+                                '<dt>Version</dt>' +
+                                '<dd>' + Denkmap.util.Config.getVersion() + '</dd>' +
+                                '<dt>More Information</dt>' +
+                                '<dd>Wiki: <a href="http://make.opendata.ch/wiki/project:denkmalfuehrer">make.opendata.ch</a></dd>' +
+                                '<dd>Report a bug: <a href="https://github.com/denkmap/denkmap/issues">GitHub</a></dd>' +
+                                '<dt>Team</dt>' +
+                                '<dd>Pirmin Kalberer</dd>' +
+                                '<dd>Thomas Husmann</dd>' +
+                                '<dd>Stefan Oderbolz</dd>' +
+                                '<dd>Adi Herzog</dd>' +
+                                '<dd>Priska Haller</dd>' +
+                                '<dd>Andi Vonlaufen</dd>' +
+                                '<dd>Beat Estermann</dd>' +
+                                '<dd>Oliver Berchtold</dd>' +
+                            '</dl>' +
+                        '</div>'
             }
         ]
     }
@@ -63966,6 +65563,72 @@ Ext.define('Ext.ux.LeafletMap', {
 });
 
 /**
+ * Main navigation view for map tab.
+ */
+Ext.define('Denkmap.view.map.NavigationView', {
+    extend:  Ext.navigation.View ,
+    alias: 'widget.mapnavigationview',
+
+               
+                            
+                    
+      
+
+    config: {
+        title: 'Map',
+        iconCls: 'map',
+        url: 'map',
+        id: 'mapNavigationView',
+        items: [{
+            // Ext.ux.LeafletMap Component
+            id: 'leafletmap',
+            xtype: 'leafletmap',
+            title: 'DenkMap',
+            useCurrentLocation: true,
+            enableOwnPositionMarker: true,
+            autoMapCenter: false,
+            mapOptions: {
+                zoom: Denkmap.util.Config.getLeafletMap().zoom
+            },
+            tileLayerUrl: Denkmap.util.Config.getLeafletMap().getTileLayerUrl(window.L.Browser.retina),
+            tileLayerOptions: {
+                apikey: Denkmap.util.Config.getLeafletMap().apiKey,
+                styleId: Denkmap.util.Config.getLeafletMap().styleId,
+                attribution: Denkmap.util.Config.getLeafletMap().tileLayerAttribution,
+                detectRetina: true
+            }
+        }],
+
+        defaultBackButtonText: 'Back',
+
+        navigationBar: {
+            items: [
+                {
+                    xtype: 'button',
+                    cls: 'mapCenterButton',
+                    iconCls: 'locate',
+                    iconMask: true,
+                    align: 'left'
+                },
+                {
+                    cls: 'mapLoadingIcon',
+                    icon : './resources/images/transparent_loader.gif',
+                    align: 'right',
+                    hidden: true
+                },
+                {
+                    xtype: 'button',
+                    cls: 'mapRefreshButton',
+                    iconCls: 'refresh',
+                    iconMask: true,
+                    align: 'right'
+                }
+            ]
+        }
+    }
+});
+
+/**
  * Main tabpanel of application.
  */
 Ext.define('Denkmap.view.Main', {
@@ -63973,9 +65636,8 @@ Ext.define('Denkmap.view.Main', {
     xtype: 'main',
     id: 'mainTabPanel',
                
-                       
                                        
-                           
+                                         
       
 
     config: {
@@ -63988,36 +65650,274 @@ Ext.define('Denkmap.view.Main', {
 
         items: [
             {
-                title: 'Map',
-                iconCls: 'map',
-                items: {
-                    docked: 'top',
-                    xtype: 'titlebar',
-                    title: 'Denkmap'
-                },
-
-                // Ext.ux.LeafletMap Component
-                xtype: 'leafletmap',
-                id: 'leafletmap',
-                useCurrentLocation: true,
-                autoMapCenter: false,
-                enableOwnPositionMarker: true,
-                mapOptions: {
-                    zoom: 15
-                },
-
-                //tileLayerUrl: 'http://{s}.tile.cloudmade.com/{apikey}/{styleId}@2x/256/{z}/{x}/{y}.png',
-                tileLayerOptions: {
-                    //apikey: '14841398f0e34016bf1a754840465247',
-                    styleId: 997,
-                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> and  &copy; <a href="http://www.geolion.zh.ch/geodatenservice/show?nbid=691">Geodaten GIS-ZH</a>',
-                    detectRetina: true
-                }
+                xtype: 'mapnavigationview'
             },
             {
                 xtype: 'aboutcontainer'
             }
         ]
+    }
+});
+
+/**
+ *
+ * Main controller for handle interaction with leaflet map.
+ *
+ */
+Ext.define('Denkmap.controller.Map', {
+    extend:  Ext.app.Controller ,
+    config: {
+
+        /**
+         * @event maptypeupdaterequest
+         * Fired on marker update request.
+         */
+
+        refs: {
+            mapNavigationView: '#mapNavigationView',
+            mapCenterButton: '#mapNavigationView .button[cls=mapCenterButton]',
+            mapRefreshButton: '#mapNavigationView .button[cls=mapRefreshButton]',
+            mapLoadingIcon: '#mapNavigationView .button[cls=mapLoadingIcon]',
+            mapCmp: '#leafletmap'
+        },
+        control: {
+            mapNavigationView: {
+                back: '_onMapNavigationViewDetailViewBack'
+            },
+            mapCenterButton: {
+                tap: '_onMapNavigationViewCenterButtonTap'
+            },
+            mapRefreshButton: {
+                tap: '_onMapNavigationViewRefreshButtonTap'
+            }
+        },
+
+        lLayerGroup: null,
+        lLayerControl: null,
+        markersLoaded: false,
+        map: null,
+
+        monumentsStore: null
+    },
+
+    /**
+     * @private
+     */
+    init: function(){
+        var me = this;
+        me.setLLayerGroup(window.L.layerGroup());
+
+        me.getApplication().on({
+            geolocationready: { fn: me._setupLeafletMap, scope: me },
+            geolocationerror: { fn: me._setupLeafletMap, scope: me },
+            locationupdate: { fn: me._updateLeafletMap, scope: me }
+        });
+
+
+        this.setMonumentsStore(Ext.getStore('Monuments'));
+        me.getMonumentsStore().on({
+            load: {
+                fn: me._updateMarkersOnMap,
+                scope: me
+            }
+        });
+        Ext.Logger.info("map init finsihed");
+    },
+
+    /**
+     * @private
+     * Sets up LeafletMap component. Is called right after the user's geolocation is available.
+     * @param {Denkmap.util.Geolocation} geo
+     */
+    _setupLeafletMap: function (geo) {
+        var me = this,
+            lLayerControl = new window.L.Control.Layers();
+        Ext.Logger.info("Setup map");
+
+        lLayerControl.addTo(me.getMapCmp().getMap());
+        me.setLLayerControl(lLayerControl);
+        me.getLLayerControl().addOverlay(me.getLLayerGroup(), 'Monuments');
+        me._enableAllLayers();
+        lLayerControl.removeFrom(me.getMapCmp().getMap());
+        me.setMap(me.getMapCmp().getMap());
+        me.getMap().on('moveend', me._updateLeafletMap, me);
+        me._updateLeafletMap();
+    },
+
+    /**
+     * @private
+     * Makes the layer visible and remove the control widget
+     * @param geo
+     */
+    _enableAllLayers: function() {
+        //this is currently an ugly hack as no clean method to enable a layer is known
+        var inputNodeList = document.getElementsByClassName('leaflet-control-layers-selector'),
+            i;
+        for (i = 0; i<inputNodeList.length; i++) { inputNodeList[i].checked=true; }
+        this.getLLayerControl()._onInputClick();
+    },
+
+    /**
+     * @private
+     * Updates LeafletMap component. Is called right after a locationupdate.
+     */
+    _updateLeafletMap: function() {
+        var me = this,
+            map = me.getMap(),
+            proxyUrl;
+        Ext.Logger.info("Map update");
+
+        proxyUrl = Denkmap.util.Config.getWebservices().monument.getUrl(
+            map.getCenter().lat,
+            map.getCenter().lng
+        );
+        me.getMonumentsStore().getProxy().setUrl(proxyUrl);
+        me.getMonumentsStore().load();
+    },
+
+    _updateMarkersOnMap: function() {
+        var me = this;
+        me.getLLayerGroup().clearLayers();
+
+        me.getMonumentsStore().each(function(monument) {
+            me.getLLayerGroup().addLayer(me._createLMarkerFromModel(monument));
+        });
+        me.setMarkersLoaded(true);
+    },
+
+    /**
+     * @private
+     * @param record
+     * @returns {L.marker} marker
+     */
+    _createLMarkerFromModel: function(model) {
+        var me = this,
+            lat = model.get('geometry').coordinates[1],
+            lon = model.get('geometry').coordinates[0],
+            objectType = Ext.create('Denkmap.util.ObjectType'),
+            style = objectType.getStyleForMonument(model.get('properties')),
+            marker = window.L.circleMarker([lat, lon], style),
+            popupHtml;
+
+        popupHtml = "<ul>";
+        if (model.get('properties').baugruppe) {
+            popupHtml += "<li><b>Baugruppe:</b>&nbsp;" + model.get('properties').baugruppe + "</li>";
+        }
+        if (model.get('properties').objtext) {
+            popupHtml += "<li><b>Objekt:</b>&nbsp;" + model.get('properties').objtext + "</li>";
+        }
+        if (model.get('properties').baujahr) {
+            popupHtml += "<li><b>Baujahr:</b>&nbsp;" + model.get('properties').baujahr + "</li>";
+        }
+        popupHtml += "</ul>";
+
+        marker.bindPopup(popupHtml);
+        marker.record = model;
+
+        return marker;
+    },
+
+    /**
+     * @private
+     */
+    _onMapNavigationViewCenterButtonTap: function () {
+        this._centerMapToCurrentPosition();
+    },
+
+    /**
+     * @private
+     */
+    _onMapNavigationViewRefreshButtonTap: function () {
+        var me = this;
+        me.setMarkersLoaded(false);
+        me._updateLeafletMap(me.getMapCmp().getGeo());
+        me._enterLoadingState(true);
+    },
+
+    /**
+     * @private
+     */
+    _centerMapToCurrentPosition: function(geo) {
+        this.getMapCmp().setMapCenter(this.getCurrentLocationLatLng());
+    },
+
+    /**
+     * @private
+     * @param {boolean} silentLoading Indicates whether a blocking loading message should be overlaid or not.
+     * @param {boolean} recursiveCall Private param that should always be false when called from outside.
+     */
+    _enterLoadingState: function(silentLoading,recursiveCall) {
+        if(!recursiveCall) {
+            this._showLoadMask(silentLoading);
+        }
+        if(this.getMarkersLoaded()) {
+            this._hideLoadMask(silentLoading);
+        } else {
+            Ext.defer(this._enterLoadingState, 200, this, [silentLoading,true]);
+        }
+    },
+
+
+    /**
+     * @private
+     */
+    _showLoadMask: function(silentLoading) {
+        Ext.Logger.info("show load mask");
+        this.getMapCenterButton().disable();
+        this.getMapRefreshButton().hide();
+        this.getMapLoadingIcon().show();
+        if(!silentLoading) {
+            this.getMapNavigationView().setMasked({
+                xtype: 'loadmask',
+                message: "Loading...",
+                zIndex: Denkmap.util.Config.getZIndex().overlayLeafletMap
+            });
+        }
+    },
+
+    /**
+     * @private
+     */
+    _hideLoadMask: function(silentLoading) {
+        Ext.Logger.info("hide load mask");
+        this.getMapLoadingIcon().hide();
+        this.getMapCenterButton().enable();
+        this.getMapRefreshButton().show();
+        if(!silentLoading) {this.getMapNavigationView().setMasked(false);}
+    },
+
+    /**
+     * Get the current gps coordiantes.
+     * @returns {L.latLng}
+     */
+    getCurrentLocationLatLng: function() {
+        var geo = this.getMapCmp().getGeo();
+        return window.L.latLng(geo.getLatitude(), geo.getLongitude());
+    }
+});
+
+/**
+ * Store for monuments.
+ */
+Ext.define('Denkmap.store.Monuments', {
+                                      
+    extend:  Ext.data.Store ,
+    config: {
+        autoLoad: false,
+        model: 'Denkmap.model.Monument',
+        proxy: {
+            type: 'rest',
+            url: './nearby/0,0',
+            pageParam: false,
+            startParam: false,
+            extraParams: {
+                'limit': Denkmap.util.Config.getWebservices().monument.limit,
+                'radius': Denkmap.util.Config.getWebservices().monument.radius
+            },
+            reader: {
+                type: 'json'
+            }
+        }
     }
 });
 
@@ -64041,11 +65941,26 @@ Ext.application({
     name: 'Denkmap',
 
                
-                        
+                         
+                                   
+                              
+                                 
       
 
     views: [
         'Main'
+    ],
+
+    models: [
+        'Monument'
+    ],
+
+    stores: [
+        'Monuments'
+    ],
+
+    controllers: [
+        'Map'
     ],
 
     icon: {
@@ -64066,12 +65981,42 @@ Ext.application({
         '1496x2048': 'resources/startup/1496x2048.png'
     },
 
-    launch: function() {
-        // Destroy the #appLoadingIndicator element
-        Ext.fly('appLoadingIndicator').destroy();
+    logger: {
+        enabled: true,
+        xclass: 'Ext.log.Logger',
+        minPriority: 'verbose',
+        writers: {
+            console: {
+                xclass: 'Ext.log.writer.Console',
+                throwOnErrors: true,
+                formatter: {
+                    xclass: 'Ext.log.formatter.Default'
+                }
+            }
+        }
+    },
 
-        // Initialize the main view
-        Ext.Viewport.add(Ext.create('Denkmap.view.Main'));
+    launch: function() {
+        var mainPanel, me = this;
+
+        // create main panel
+        // this has to be done in launch method so routes can work properly
+        mainPanel = Ext.create('Denkmap.view.Main');
+        Ext.Viewport.add(mainPanel);
+        mainPanel.hide();
+
+        Denkmap.geolocation = Ext.create('Denkmap.util.Geolocation');
+        Denkmap.geolocation.updateLocation(function(geo) {
+            if(geo) {
+                Ext.Logger.info("Updated location");
+                Ext.defer(me.fireEvent, 500, me, ['geolocationready', geo]);
+            } else {
+                Ext.Logger.warn("Geolocation error");
+                Ext.defer(me.fireEvent, 500, me, ['geolocationerror']);
+            }
+            Ext.fly('appLoadingIndicator').destroy();
+            mainPanel.show();
+        });
     },
 
     onUpdated: function() {

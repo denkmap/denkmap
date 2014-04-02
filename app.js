@@ -58,6 +58,21 @@ Ext.application({
         '1496x2048': 'resources/startup/1496x2048.png'
     },
 
+    logger: {
+        enabled: true,
+        xclass: 'Ext.log.Logger',
+        minPriority: 'verbose',
+        writers: {
+            console: {
+                xclass: 'Ext.log.writer.Console',
+                throwOnErrors: true,
+                formatter: {
+                    xclass: 'Ext.log.formatter.Default'
+                }
+            }
+        }
+    },
+
     launch: function() {
         var mainPanel, me = this;
 
@@ -70,14 +85,14 @@ Ext.application({
         Denkmap.geolocation = Ext.create('Denkmap.util.Geolocation');
         Denkmap.geolocation.updateLocation(function(geo) {
             if(geo) {
-                console.log("Updated location");
+                Ext.Logger.info("Updated location");
                 Ext.defer(me.fireEvent, 500, me, ['geolocationready', geo]);
-                Ext.fly('appLoadingIndicator').destroy();
-                mainPanel.show();
             } else {
-                console.log("Geolocation error");
-                console.log(geo);
+                Ext.Logger.warn("Geolocation error");
+                Ext.defer(me.fireEvent, 500, me, ['geolocationerror']);
             }
+            Ext.fly('appLoadingIndicator').destroy();
+            mainPanel.show();
         });
     },
 
