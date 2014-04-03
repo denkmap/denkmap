@@ -30,7 +30,7 @@ Ext.define('Denkmap.view.map.NavigationView', {
             tileLayerOptions: {
                 apikey: Denkmap.util.Config.getLeafletMap().apiKey,
                 attribution: Denkmap.util.Config.getLeafletMap().tileLayerAttribution,
-                detectRetina: true
+                detectRetina: false
             }
         }],
 
