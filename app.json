@@ -50,7 +50,7 @@
         {
             "path": "app.js",
             "bundle": true,  /* Indicates that all class dependencies are concatenated into this file when build */
-            "update": "delta"
+            "update": "full"
         }
     ],
 
@@ -85,6 +85,7 @@
          * List of items in the CACHE MANIFEST section
          */
         "cache": [
+            "index.html"
         ],
         /**
          * List of items in the NETWORK section

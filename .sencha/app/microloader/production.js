@@ -340,7 +340,7 @@
         if (!isShared && asset.version && asset.version.length) {
             var onRequestSuccess = onSuccess,
                 version = asset.version,
-                versionLn = asset.version.length,
+                versionLn = version.length,
                 checksumFail, checksumType;
 
             onSuccess = function(content) {
